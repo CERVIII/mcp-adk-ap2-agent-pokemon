@@ -1,0 +1,1814 @@
+[
+  {
+    "numero": 1,
+    "nombre": "bulbasaur",
+    "precio": 280,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 10,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 2,
+    "nombre": "ivysaur",
+    "precio": 149,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 9,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 3,
+    "nombre": "venusaur",
+    "precio": 123,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 8,
+      "vendidos": 6
+    }
+  },
+  {
+    "numero": 4,
+    "nombre": "charmander",
+    "precio": 221,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 8,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 5,
+    "nombre": "charmeleon",
+    "precio": 132,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 6,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 6,
+    "nombre": "charizard",
+    "precio": 51,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 5,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 7,
+    "nombre": "squirtle",
+    "precio": 200,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 4,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 8,
+    "nombre": "wartortle",
+    "precio": 136,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 14,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 9,
+    "nombre": "blastoise",
+    "precio": 149,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 12,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 10,
+    "nombre": "caterpie",
+    "precio": 147,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 9,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 11,
+    "nombre": "metapod",
+    "precio": 97,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 12,
+    "nombre": "butterfree",
+    "precio": 79,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 14,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 13,
+    "nombre": "weedle",
+    "precio": 133,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 14,
+    "nombre": "kakuna",
+    "precio": 123,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 4,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 15,
+    "nombre": "beedrill",
+    "precio": 96,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 7,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 16,
+    "nombre": "pidgey",
+    "precio": 126,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 9,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 17,
+    "nombre": "pidgeotto",
+    "precio": 75,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 18,
+    "nombre": "pidgeot",
+    "precio": 144,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 6,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 19,
+    "nombre": "rattata",
+    "precio": 123,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 20,
+    "nombre": "raticate",
+    "precio": 82,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 9,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 21,
+    "nombre": "spearow",
+    "precio": 63,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 9,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 22,
+    "nombre": "fearow",
+    "precio": 105,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 12,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 23,
+    "nombre": "ekans",
+    "precio": 62,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 6,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 24,
+    "nombre": "arbok",
+    "precio": 140,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 25,
+    "nombre": "pikachu",
+    "precio": 193,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 8,
+      "vendidos": 6
+    }
+  },
+  {
+    "numero": 26,
+    "nombre": "raichu",
+    "precio": 102,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 11,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 27,
+    "nombre": "sandshrew",
+    "precio": 148,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 5,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 28,
+    "nombre": "sandslash",
+    "precio": 130,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 29,
+    "nombre": "nidoran-f",
+    "precio": 116,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 10,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 30,
+    "nombre": "nidorina",
+    "precio": 137,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 5,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 31,
+    "nombre": "nidoqueen",
+    "precio": 93,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 6,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 32,
+    "nombre": "nidoran-m",
+    "precio": 128,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 33,
+    "nombre": "nidorino",
+    "precio": 60,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 7,
+      "vendidos": 6
+    }
+  },
+  {
+    "numero": 34,
+    "nombre": "nidoking",
+    "precio": 97,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 35,
+    "nombre": "clefairy",
+    "precio": 149,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 9,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 36,
+    "nombre": "clefable",
+    "precio": 124,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 7,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 37,
+    "nombre": "vulpix",
+    "precio": 112,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 6,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 38,
+    "nombre": "ninetales",
+    "precio": 133,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 39,
+    "nombre": "jigglypuff",
+    "precio": 71,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 7,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 40,
+    "nombre": "wigglytuff",
+    "precio": 128,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 9,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 41,
+    "nombre": "zubat",
+    "precio": 67,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 10,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 42,
+    "nombre": "golbat",
+    "precio": 149,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 43,
+    "nombre": "oddish",
+    "precio": 128,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 4,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 44,
+    "nombre": "gloom",
+    "precio": 85,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 13,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 45,
+    "nombre": "vileplume",
+    "precio": 99,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 14,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 46,
+    "nombre": "paras",
+    "precio": 54,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 14,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 47,
+    "nombre": "parasect",
+    "precio": 131,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 48,
+    "nombre": "venonat",
+    "precio": 142,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 10,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 49,
+    "nombre": "venomoth",
+    "precio": 141,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 50,
+    "nombre": "diglett",
+    "precio": 104,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 12,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 51,
+    "nombre": "dugtrio",
+    "precio": 52,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 52,
+    "nombre": "meowth",
+    "precio": 135,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 9,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 53,
+    "nombre": "persian",
+    "precio": 76,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 5,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 54,
+    "nombre": "psyduck",
+    "precio": 56,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 4,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 55,
+    "nombre": "golduck",
+    "precio": 91,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 8,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 56,
+    "nombre": "mankey",
+    "precio": 105,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 57,
+    "nombre": "primeape",
+    "precio": 87,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 10,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 58,
+    "nombre": "growlithe",
+    "precio": 99,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 6,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 59,
+    "nombre": "arcanine",
+    "precio": 126,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 8,
+      "vendidos": 7
+    }
+  },
+  {
+    "numero": 60,
+    "nombre": "poliwag",
+    "precio": 52,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 14,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 61,
+    "nombre": "poliwhirl",
+    "precio": 100,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 7,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 62,
+    "nombre": "poliwrath",
+    "precio": 141,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 8,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 63,
+    "nombre": "abra",
+    "precio": 67,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 10,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 64,
+    "nombre": "kadabra",
+    "precio": 147,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 6,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 65,
+    "nombre": "alakazam",
+    "precio": 136,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 13,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 66,
+    "nombre": "machop",
+    "precio": 63,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 67,
+    "nombre": "machoke",
+    "precio": 121,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 4,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 68,
+    "nombre": "machamp",
+    "precio": 63,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 5,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 69,
+    "nombre": "bellsprout",
+    "precio": 50,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 11,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 70,
+    "nombre": "weepinbell",
+    "precio": 60,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 6,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 71,
+    "nombre": "victreebel",
+    "precio": 54,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 11,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 72,
+    "nombre": "tentacool",
+    "precio": 126,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 13,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 73,
+    "nombre": "tentacruel",
+    "precio": 131,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 8,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 74,
+    "nombre": "geodude",
+    "precio": 142,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 11,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 75,
+    "nombre": "graveler",
+    "precio": 102,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 76,
+    "nombre": "golem",
+    "precio": 50,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 8,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 77,
+    "nombre": "ponyta",
+    "precio": 108,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 4,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 78,
+    "nombre": "rapidash",
+    "precio": 77,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 15,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 79,
+    "nombre": "slowpoke",
+    "precio": 135,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 80,
+    "nombre": "slowbro",
+    "precio": 126,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 10,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 81,
+    "nombre": "magnemite",
+    "precio": 108,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 82,
+    "nombre": "magneton",
+    "precio": 68,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 5,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 83,
+    "nombre": "farfetchd",
+    "precio": 144,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 7,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 84,
+    "nombre": "doduo",
+    "precio": 104,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 5,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 85,
+    "nombre": "dodrio",
+    "precio": 50,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 5,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 86,
+    "nombre": "seel",
+    "precio": 110,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 7,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 87,
+    "nombre": "dewgong",
+    "precio": 101,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 5,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 88,
+    "nombre": "grimer",
+    "precio": 148,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 11,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 89,
+    "nombre": "muk",
+    "precio": 63,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 4,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 90,
+    "nombre": "shellder",
+    "precio": 81,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 91,
+    "nombre": "cloyster",
+    "precio": 142,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 92,
+    "nombre": "gastly",
+    "precio": 139,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 93,
+    "nombre": "haunter",
+    "precio": 96,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 9,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 94,
+    "nombre": "gengar",
+    "precio": 136,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 15,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 95,
+    "nombre": "onix",
+    "precio": 116,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 8,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 96,
+    "nombre": "drowzee",
+    "precio": 55,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 9,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 97,
+    "nombre": "hypno",
+    "precio": 109,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 98,
+    "nombre": "krabby",
+    "precio": 78,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 11,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 99,
+    "nombre": "kingler",
+    "precio": 105,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 11,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 100,
+    "nombre": "voltorb",
+    "precio": 83,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 101,
+    "nombre": "electrode",
+    "precio": 83,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 5,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 102,
+    "nombre": "exeggcute",
+    "precio": 52,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 11,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 103,
+    "nombre": "exeggutor",
+    "precio": 59,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 104,
+    "nombre": "cubone",
+    "precio": 63,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 105,
+    "nombre": "marowak",
+    "precio": 95,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 12,
+      "disponibles": 9,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 106,
+    "nombre": "hitmonlee",
+    "precio": 78,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 10,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 107,
+    "nombre": "hitmonchan",
+    "precio": 70,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 4,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 108,
+    "nombre": "lickitung",
+    "precio": 121,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 5,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 109,
+    "nombre": "koffing",
+    "precio": 62,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 7,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 110,
+    "nombre": "weezing",
+    "precio": 114,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 111,
+    "nombre": "rhyhorn",
+    "precio": 85,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 6,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 112,
+    "nombre": "rhydon",
+    "precio": 149,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 12,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 113,
+    "nombre": "chansey",
+    "precio": 103,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 11,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 114,
+    "nombre": "tangela",
+    "precio": 68,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 8,
+      "vendidos": 6
+    }
+  },
+  {
+    "numero": 115,
+    "nombre": "kangaskhan",
+    "precio": 97,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 116,
+    "nombre": "horsea",
+    "precio": 54,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 5,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 117,
+    "nombre": "seadra",
+    "precio": 83,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 13,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 118,
+    "nombre": "goldeen",
+    "precio": 126,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 6,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 119,
+    "nombre": "seaking",
+    "precio": 53,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 120,
+    "nombre": "staryu",
+    "precio": 148,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 8,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 121,
+    "nombre": "starmie",
+    "precio": 91,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 5,
+      "disponibles": 4,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 122,
+    "nombre": "mr-mime",
+    "precio": 73,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 123,
+    "nombre": "scyther",
+    "precio": 62,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 7,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 124,
+    "nombre": "jynx",
+    "precio": 135,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 125,
+    "nombre": "electabuzz",
+    "precio": 100,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 5,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 126,
+    "nombre": "magmar",
+    "precio": 147,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 7,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 127,
+    "nombre": "pinsir",
+    "precio": 63,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 10,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 128,
+    "nombre": "tauros",
+    "precio": 98,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 9,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 129,
+    "nombre": "magikarp",
+    "precio": 125,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 8,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 130,
+    "nombre": "gyarados",
+    "precio": 64,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 8,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 131,
+    "nombre": "lapras",
+    "precio": 50,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 9,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 132,
+    "nombre": "ditto",
+    "precio": 147,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 7,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 133,
+    "nombre": "eevee",
+    "precio": 140,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 134,
+    "nombre": "vaporeon",
+    "precio": 121,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 135,
+    "nombre": "jolteon",
+    "precio": 137,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 13,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 136,
+    "nombre": "flareon",
+    "precio": 91,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 137,
+    "nombre": "porygon",
+    "precio": 101,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 138,
+    "nombre": "omanyte",
+    "precio": 68,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 5,
+      "vendidos": 4
+    }
+  },
+  {
+    "numero": 139,
+    "nombre": "omastar",
+    "precio": 92,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 14,
+      "disponibles": 13,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 140,
+    "nombre": "kabuto",
+    "precio": 55,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 10,
+      "disponibles": 10,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 141,
+    "nombre": "kabutops",
+    "precio": 67,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 6,
+      "vendidos": 0
+    }
+  },
+  {
+    "numero": 142,
+    "nombre": "aerodactyl",
+    "precio": 53,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 5,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 143,
+    "nombre": "snorlax",
+    "precio": 51,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 7,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 144,
+    "nombre": "articuno",
+    "precio": 562,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 6,
+      "disponibles": 4,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 145,
+    "nombre": "zapdos",
+    "precio": 577,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 4,
+      "vendidos": 3
+    }
+  },
+  {
+    "numero": 146,
+    "nombre": "moltres",
+    "precio": 589,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 15,
+      "disponibles": 14,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 147,
+    "nombre": "dratini",
+    "precio": 513,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 7,
+      "disponibles": 5,
+      "vendidos": 2
+    }
+  },
+  {
+    "numero": 148,
+    "nombre": "dragonair",
+    "precio": 509,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 8,
+      "disponibles": 7,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 149,
+    "nombre": "dragonite",
+    "precio": 563,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 11,
+      "disponibles": 10,
+      "vendidos": 1
+    }
+  },
+  {
+    "numero": 150,
+    "nombre": "mewtwo",
+    "precio": 571,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 13,
+      "disponibles": 8,
+      "vendidos": 5
+    }
+  },
+  {
+    "numero": 151,
+    "nombre": "mew",
+    "precio": 531,
+    "enVenta": true,
+    "estado": "disponible",
+    "inventario": {
+      "total": 9,
+      "disponibles": 5,
+      "vendidos": 4
+    }
+  }
+]

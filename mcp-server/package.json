@@ -1,0 +1,24 @@
+{
+  "name": "mcp-pokemon-server",
+  "version": "1.0.0",
+  "description": "MCP Server with Pokemon tools - PokeAPI integration and price management",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node build/index.js",
+    "dev": "tsc --watch & node --watch build/index.js"
+  },
+  "keywords": ["mcp", "pokemon", "pokeapi"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.8.1",
+    "typescript": "^5.7.2"
+  }
+}

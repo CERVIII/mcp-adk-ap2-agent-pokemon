@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "pokemon": {
+      "command": "node",
+      "args": [
+        "/home/idb0181/Escritorio/prueba-mcp-a2a-ap2/mcp-server/build/index.js"
+      ]
+    }
+  }
+}

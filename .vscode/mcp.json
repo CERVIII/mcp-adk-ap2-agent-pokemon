@@ -1,0 +1,22 @@
+{
+	"servers": {
+		"mcp-pokemon": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"tsx",
+				"main.ts"
+			]
+		},
+		"pokemon_merchant": {
+			"type": "stdio",
+			"command": "python3.11",
+			"args": [
+				"-c",
+				"import sys; sys.path.insert(0, '/home/idb0181/Escritorio/mcp-pokemon/ap2-integration'); from pokemon_merchant.mcp_server import main; import asyncio; asyncio.run(main())"
+			]
+		}
+	},
+	"inputs": []
+}
