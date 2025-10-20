@@ -139,6 +139,46 @@ Obtiene información completa de un producto Pokemon (precio + PokeAPI).
 - Precio e inventario
 - Disponibilidad en stock
 
+### 7. `get_current_cart` 🆕
+Visualiza el carrito de compra actual con todos los items y el total.
+
+**Parámetros:**
+```json
+{}
+```
+
+**Respuesta (con carrito activo):**
+```json
+{
+  "status": "active",
+  "cart_id": "cart_pokemon_c45d6f6a",
+  "merchant": "PokeMart - Primera Generación",
+  "created_at": "2025-10-20T19:23:41.271Z",
+  "items": [
+    {
+      "description": "Mew (x1)",
+      "price_usd": 531
+    },
+    {
+      "description": "Charizard (x1)",
+      "price_usd": 51
+    }
+  ],
+  "total_usd": 582,
+  "currency": "USD",
+  "ready_for_payment": true
+}
+```
+
+**Respuesta (carrito vacío):**
+```json
+{
+  "message": "🛒 Tu carrito está vacío",
+  "status": "empty",
+  "suggestion": "Usa create_pokemon_cart para agregar Pokémon a tu carrito"
+}
+```
+
 ## 📦 Estructura del CartMandate (AP2)
 
 El servidor genera CartMandates siguiendo la especificación AP2:

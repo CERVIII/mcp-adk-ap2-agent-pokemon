@@ -31,11 +31,19 @@ venv/
 env/
 ENV/
 .venv
+*.egg-info/
 
 # Python package manager
 pip-log.txt
 pip-delete-this-directory.txt
 .uv/
+uv.lock
+.python-version
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
 
 # ============================================
 # Environment & Secrets
@@ -64,6 +72,10 @@ secrets/
 # ============================================
 logs/
 *.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # ============================================
 # Temporary files
@@ -73,6 +85,26 @@ temp/
 *.tmp
 *.bak
 *.cache
+*.pid
+*.seed
+*.lock
+.lock-wscript
+
+# ============================================
+# Test & Coverage
+# ============================================
+coverage/
+.nyc_output/
+test-results/
+*.test.log
+
+# ============================================
+# Database
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
 
 # ============================================
 # Documentation (keeping only README.md in each folder)

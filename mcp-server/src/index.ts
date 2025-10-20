@@ -11,9 +11,31 @@ import { z } from "zod";
 import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// ========================================
+// RSA Key Generation for JWT Signatures
+// ========================================
+
+// Generate RSA key pair for merchant signatures
+const { privateKey: MERCHANT_PRIVATE_KEY, publicKey: MERCHANT_PUBLIC_KEY } = crypto.generateKeyPairSync('rsa', {
+  modulusLength: 2048,
+  publicKeyEncoding: {
+    type: 'spki',
+    format: 'pem'
+  },
+  privateKeyEncoding: {
+    type: 'pkcs8',
+    format: 'pem'
+  }
+});
+
+console.error('🔐 RSA keys generated for merchant signatures');
+console.error('📝 Public key preview:', MERCHANT_PUBLIC_KEY.substring(0, 100) + '...');
 
 // Tipos para los datos de Pokémon locales
 interface PokemonPrice {
@@ -78,14 +100,16 @@ interface PaymentRequest {
 interface CartMandateContents {
   id: string;
   user_signature_required: boolean;
+  user_cart_confirmation_required: boolean;
+  merchant_name: string;
   payment_request: PaymentRequest;
+  cart_expiry?: string | null;
 }
 
 interface CartMandate {
   contents: CartMandateContents;
   merchant_signature: string;
   timestamp: string;
-  merchantName: string;
 }
 
 interface CartItem {
@@ -96,6 +120,9 @@ interface CartItem {
 // Caché para los datos de precios
 let pokemonPricesCache: PokemonPrice[] | null = null;
 
+// Carrito actual del usuario (almacenado en memoria)
+let currentCart: CartMandate | null = null;
+
 // Función para cargar los precios de Pokémon
 async function loadPokemonPrices(): Promise<PokemonPrice[]> {
   if (pokemonPricesCache) {
@@ -104,7 +131,7 @@ async function loadPokemonPrices(): Promise<PokemonPrice[]> {
 
   try {
     // Intentar cargar desde la raíz del proyecto
-    const pokemonDataPath = join(__dirname, "../../../pokemon-gen1.json");
+    const pokemonDataPath = join(__dirname, "../../pokemon-gen1.json");
     const data = await readFile(pokemonDataPath, "utf-8");
     pokemonPricesCache = JSON.parse(data);
     return pokemonPricesCache!;
@@ -144,10 +171,34 @@ function generateOrderId(): string {
 }
 
 /**
- * Generate merchant signature for cart
+ * Generate merchant signature for cart as a JWT RS256
+ * 
+ * Creates a real JWT signed with the merchant's private RSA key.
+ * The JWT contains cart_id, merchant info, and timestamps.
+ * 
+ * @param cartId - The cart identifier to sign
+ * @returns Base64url-encoded JWT string (header.payload.signature)
  */
 function generateMerchantSignature(cartId: string): string {
-  return `sig_merchant_pokemon_${cartId}`;
+  const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
+  
+  const payload = {
+    iss: "PokeMart",                    // Issuer (merchant name)
+    sub: cartId,                        // Subject (cart ID)
+    iat: now,                           // Issued at
+    exp: now + (60 * 60),              // Expires in 1 hour
+    cart_id: cartId,
+    merchant: "PokeMart - Primera Generación"
+  };
+  
+  // Sign with RS256 algorithm using merchant's private key
+  const token = jwt.sign(payload, MERCHANT_PRIVATE_KEY, { algorithm: 'RS256' });
+  
+  // Log JWT structure for debugging
+  const parts = token.split('.');
+  console.error(`🔐 Generated JWT merchant signature: ${parts.length} parts (${token.substring(0, 50)}...)`);
+  
+  return token;
 }
 
 /**
@@ -208,6 +259,8 @@ async function createCartMandate(items: CartItem[]): Promise<CartMandate> {
     contents: {
       id: cartId,
       user_signature_required: false,
+      user_cart_confirmation_required: false,
+      merchant_name: "PokeMart - Primera Generación",
       payment_request: {
         method_data: [
           {
@@ -238,11 +291,14 @@ async function createCartMandate(items: CartItem[]): Promise<CartMandate> {
           shippingType: null,
         },
       },
+      cart_expiry: null,
     },
     merchant_signature: generateMerchantSignature(cartId),
     timestamp: timestamp,
-    merchantName: "PokeMart - Primera Generación",
   };
+
+  // Guardar el carrito actual en memoria
+  currentCart = cartMandate;
 
   return cartMandate;
 }
@@ -390,6 +446,15 @@ const TOOLS: Tool[] = [
         },
       },
       required: ["product_id"],
+    },
+  },
+  {
+    name: "get_current_cart",
+    description:
+      "View the current shopping cart with all items, prices, and total. Returns the active CartMandate if one exists, or a message if the cart is empty.",
+    inputSchema: {
+      type: "object",
+      properties: {},
     },
   },
 ];
@@ -588,13 +653,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { items } = schema.parse(args);
 
         const cartMandate = await createCartMandate(items);
-        const displayText = formatCartMandateDisplay(cartMandate);
-
+        
+        // Return the CartMandate as JSON for programmatic access
         return {
           content: [
             {
               type: "text",
-              text: displayText,
+              text: JSON.stringify(cartMandate, null, 2),
             },
           ],
         };
@@ -651,6 +716,52 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: "text",
               text: JSON.stringify(productInfo, null, 2),
+            },
+          ],
+        };
+      }
+
+      case "get_current_cart": {
+        // No need to parse args - this tool takes no parameters
+        
+        if (!currentCart) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: JSON.stringify({
+                  message: "🛒 Tu carrito está vacío",
+                  status: "empty",
+                  suggestion: "Usa create_pokemon_cart para agregar Pokémon a tu carrito"
+                }, null, 2),
+              },
+            ],
+          };
+        }
+
+        // Return formatted cart information
+        const items = currentCart.contents.payment_request.details.displayItems;
+        const total = currentCart.contents.payment_request.details.total.amount.value;
+
+        const cartSummary = {
+          status: "active",
+          cart_id: currentCart.contents.id,
+          merchant: currentCart.contents.merchant_name,
+          created_at: currentCart.timestamp,
+          items: items.map(item => ({
+            description: item.label,
+            price_usd: item.amount.value
+          })),
+          total_usd: total,
+          currency: "USD",
+          ready_for_payment: true
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(cartSummary, null, 2),
             },
           ],
         };
