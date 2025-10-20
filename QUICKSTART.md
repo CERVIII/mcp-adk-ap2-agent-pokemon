@@ -2,35 +2,36 @@
 
 Este archivo te ayudará a empezar en **menos de 5 minutos**! 🚀
 
-## ⚡ Setup Rápido
+## ⚡ Setup Ultra-Rápido (Recomendado)
 
-### 1️⃣ Requisitos
-
-```bash
-# Verificar que tienes todo instalado
-node --version   # Debe ser 18+
-python3 --version # Debe ser 3.10+
-uv --version     # Si no lo tienes: curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-### 2️⃣ Setup Automático
+### Opción 1: Makefile Automático (¡1 comando!)
 
 ```bash
-# Ejecutar script de setup
-./scripts/setup.sh
-
-# Configurar API Key
-nano adk-agent/.env          # Pega tu GOOGLE_API_KEY
-nano ap2-integration/.env    # Pega tu GOOGLE_API_KEY
+# Un solo comando hace TODO:
+make run
 ```
+
+Esto automáticamente:
+- ✅ Instala dependencias
+- ✅ Compila el MCP Server
+- ✅ Crea archivos .env
+- ✅ Te pide configurar la API Key
+- ✅ Ejecuta el demo completo
 
 **¿Dónde consigo la API Key?**
 → https://aistudio.google.com/apikey
 
-### 3️⃣ ¡Ejecutar!
+### Opción 2: Scripts (Manual)
 
 ```bash
-# Demo completo de compra Pokemon con AP2
+# 1. Ejecutar script de setup
+./scripts/setup.sh
+
+# 2. Configurar API Key
+nano adk-agent/.env          # Pega tu GOOGLE_API_KEY
+nano ap2-integration/.env    # Pega tu GOOGLE_API_KEY
+
+# 3. Ejecutar demo
 ./scripts/run-ap2-demo.sh
 ```
 
@@ -73,7 +74,20 @@ Para desarrollo, ejecuta en 2 terminales:
 
 ## 📚 Comandos Útiles
 
-### Usando Scripts
+### Usando Makefile (Recomendado - Automático)
+
+```bash
+make run           # 🚀 Ejecutar demo (auto-configura TODO)
+make run-adk       # ADK Agent (auto-configura)
+make run-merchant  # Merchant (auto-configura)
+make run-shopping  # Shopping (auto-configura)
+make status        # Ver estado del proyecto
+make configure-api-key  # Configurar API Key interactivamente
+make clean         # Limpiar compilados
+make help          # Ver todos los comandos
+```
+
+### Usando Scripts (Alternativo)
 
 ```bash
 ./scripts/setup.sh          # Setup completo
@@ -84,15 +98,10 @@ Para desarrollo, ejecuta en 2 terminales:
 ./scripts/clean.sh          # Limpiar proyecto
 ```
 
-### Usando Makefile
+### ¿Cuál usar?
 
-```bash
-make help          # Ver todos los comandos
-make setup         # Setup completo
-make status        # Ver estado del proyecto
-make ports         # Ver puertos en uso
-make clean         # Limpiar compilados
-```
+- **Makefile**: Mejor para desarrollo, auto-configura todo
+- **Scripts**: Mejor para CI/CD o ejecución manual controlada
 
 ## 🐛 Problemas Comunes
 
