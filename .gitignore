@@ -75,14 +75,20 @@ temp/
 *.cache
 
 # ============================================
-# Documentation (keeping only README.md)
+# Documentation (keeping only README.md in each folder)
 # ============================================
 MIGRATION_GUIDE.md
 PROJECT_SUMMARY.md
-QUICKSTART.md
 TESTING_GUIDE.md
 UNIFIED_SERVER_READY.md
 mcp-server/README_AP2.md
+
+# ============================================
+# Scripts logs and temp files
+# ============================================
+scripts/*.log
+scripts/tmp/
+*.pid
 
 # ============================================
 # OS specific
