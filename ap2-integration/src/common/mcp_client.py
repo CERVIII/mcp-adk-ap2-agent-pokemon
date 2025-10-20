@@ -1,303 +1,308 @@
 """
-MCP Client - Connects to MCP Server to query Pokemon catalog
+MCP Client - Connects to the Pokemon MCP server
+
+This client enables Python agents to call MCP tools exposed by the
+TypeScript MCP server (mcp-server/src/index.ts).
 """
 
 import asyncio
 import json
+import os
 from typing import Any, Dict, List, Optional
-import subprocess
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
 
 
 class MCPClient:
-    """Client to communicate with MCP Server via stdio"""
+    """Client for interacting with Pokemon MCP server"""
     
-    def __init__(self, mcp_server_path: str):
+    def __init__(self, server_script_path: str):
         """
         Initialize MCP client
         
         Args:
-            mcp_server_path: Path to the MCP server executable (e.g., 'node build/index.js')
+            server_script_path: Path to the MCP server entry point (build/index.js)
         """
-        self.mcp_server_path = mcp_server_path
-        self.process: Optional[subprocess.Popen] = None
-        self.request_id = 0
-    
-    async def start(self):
-        """Start the MCP server process"""
-        # Split the command into parts
-        parts = self.mcp_server_path.split()
+        self.server_script_path = os.path.abspath(server_script_path)
+        self.session: Optional[ClientSession] = None
+        self._stdio_context = None
         
-        self.process = subprocess.Popen(
-            parts,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1
+    async def connect(self):
+        """Establish connection to MCP server"""
+        server_params = StdioServerParameters(
+            command="node",
+            args=[self.server_script_path],
+            env=None
         )
-    
-    async def stop(self):
-        """Stop the MCP server process"""
-        if self.process:
-            self.process.terminate()
-            self.process.wait()
-    
-    def _get_next_id(self) -> int:
-        """Get next request ID"""
-        self.request_id += 1
-        return self.request_id
-    
+        
+        self._stdio_context = stdio_client(server_params)
+        self._read, self._write = await self._stdio_context.__aenter__()
+        self.session = ClientSession(self._read, self._write)
+        await self.session.__aenter__()
+        
+        # Initialize the session
+        await self.session.initialize()
+        
+        print(f"✅ Connected to MCP server: {self.server_script_path}")
+        
+    async def disconnect(self):
+        """Close connection to MCP server"""
+        if self.session:
+            await self.session.__aexit__(None, None, None)
+        if self._stdio_context:
+            await self._stdio_context.__aexit__(None, None, None)
+        print("❌ Disconnected from MCP server")
+        
+    async def list_tools(self) -> List[Dict[str, Any]]:
+        """List all available tools from MCP server"""
+        if not self.session:
+            raise RuntimeError("Not connected to MCP server. Call connect() first.")
+        
+        response = await self.session.list_tools()
+        return [
+            {
+                "name": tool.name,
+                "description": tool.description,
+                "inputSchema": tool.inputSchema
+            }
+            for tool in response.tools
+        ]
+        
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         """
-        Call a tool on the MCP server
+        Call a specific MCP tool
         
         Args:
             tool_name: Name of the tool to call
-            arguments: Arguments to pass to the tool
+            arguments: Tool arguments as dict
             
         Returns:
-            Tool response
+            Tool result (parsed from JSON if possible)
         """
-        if not self.process:
-            raise RuntimeError("MCP client not started")
+        if not self.session:
+            raise RuntimeError("Not connected to MCP server. Call connect() first.")
         
-        # Build JSON-RPC request
-        request = {
-            "jsonrpc": "2.0",
-            "id": self._get_next_id(),
-            "method": "tools/call",
-            "params": {
-                "name": tool_name,
-                "arguments": arguments
-            }
-        }
+        result = await self.session.call_tool(tool_name, arguments)
         
-        # Send request
-        request_str = json.dumps(request) + "\n"
-        self.process.stdin.write(request_str)
-        self.process.stdin.flush()
-        
-        # Read response
-        response_str = self.process.stdout.readline()
-        if not response_str:
-            raise RuntimeError("No response from MCP server")
-        
-        response = json.loads(response_str)
-        
-        # Check for errors
-        if "error" in response:
-            raise RuntimeError(f"MCP Error: {response['error']}")
-        
-        return response.get("result")
-    
-    async def get_pokemon_price(self, pokemon: str) -> Optional[Dict[str, Any]]:
-        """
-        Get price and inventory for a Pokemon
-        
-        Args:
-            pokemon: Pokemon name or number
-            
-        Returns:
-            Pokemon price info or None if not found
-        """
-        try:
-            result = await self.call_tool(
-                "get_pokemon_price",
-                {"pokemon": pokemon}
-            )
-            
-            if result and "content" in result:
-                for content in result["content"]:
-                    if content.get("type") == "text":
-                        text = content.get("text", "")
-                        
-                        # Parse JSON response from MCP
-                        try:
-                            data = json.loads(text)
-                            
-                            # Check if it's an error response
-                            if "error" in data:
-                                return None
-                            
-                            # Return the structured data
-                            return data
-                        except json.JSONDecodeError:
-                            print(f"Failed to parse MCP response: {text}")
-                            return None
-            
-            return None
-        except Exception as e:
-            print(f"Error getting pokemon price from MCP: {e}")
-            return None
-    
-    async def search_pokemon(
-        self,
-        pokemon_type: Optional[str] = None,
-        max_price: Optional[float] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        Search for Pokemon with filters
-        
-        Args:
-            pokemon_type: Pokemon type (e.g., 'Fire', 'Water')
-            max_price: Maximum price filter
-            
-        Returns:
-            List of matching Pokemon
-        """
-        try:
-            args = {}
-            if pokemon_type:
-                args["type"] = pokemon_type
-            if max_price:
-                args["max_price"] = max_price
-            
-            result = await self.call_tool("search_pokemon", args)
-            
-            if result and "content" in result:
-                for content in result["content"]:
-                    if content.get("type") == "text":
-                        text = content.get("text", "")
-                        
-                        # Parse JSON response
-                        try:
-                            data = json.loads(text)
-                            return data.get("results", [])
-                        except json.JSONDecodeError:
-                            print(f"Failed to parse MCP response: {text}")
-                            return []
-            
-            return []
-        except Exception as e:
-            print(f"Error searching pokemon from MCP: {e}")
-            return []
-
-
-class SimpleMCPClient:
-    """
-    Simplified MCP client that reads directly from pokemon-gen1.json
-    This is a temporary solution until we implement full MCP protocol
-    """
-    
-    def __init__(self, catalog_path: str = None):
-        """Initialize simple MCP client"""
-        import os
-        if catalog_path is None:
-            # Default to project root
-            catalog_path = os.path.join(
-                os.path.dirname(__file__),
-                "../../../pokemon-gen1.json"
-            )
-        self.catalog_path = catalog_path
-        self.catalog_data = None
-        self._load_catalog()
-    
-    def _load_catalog(self):
-        """Load catalog from JSON file"""
-        try:
-            with open(self.catalog_path, 'r') as f:
-                self.catalog_data = json.load(f)
-        except Exception as e:
-            print(f"Error loading catalog: {e}")
-            self.catalog_data = []
-    
-    async def start(self):
-        """Start client (no-op for simple client)"""
-        pass
-    
-    async def stop(self):
-        """Stop client (no-op for simple client)"""
-        pass
-    
-    async def get_pokemon_price(self, pokemon: str) -> Optional[Dict[str, Any]]:
-        """
-        Get price and inventory for a Pokemon
-        
-        Args:
-            pokemon: Pokemon name or number
-            
-        Returns:
-            Pokemon data or None if not found
-        """
-        if not self.catalog_data:
-            return None
-        
-        pokemon_lower = pokemon.lower()
-        
-        # Search by name or number
-        for p in self.catalog_data:
-            if (p['nombre'].lower() == pokemon_lower or 
-                str(p['numero']) == pokemon):
-                return p
+        # MCP returns results as a list of content items
+        if result.content:
+            # Usually the first item contains the result
+            first_content = result.content[0]
+            if hasattr(first_content, 'text'):
+                try:
+                    # Try to parse as JSON
+                    return json.loads(first_content.text)
+                except json.JSONDecodeError:
+                    # Return as plain text
+                    return first_content.text
         
         return None
+        
+    # ============================================
+    # Convenience methods for Pokemon MCP tools
+    # ============================================
     
-    async def search_pokemon(
-        self,
-        query: Optional[str] = None,
-        pokemon_type: Optional[str] = None,
-        max_price: Optional[float] = None,
-        only_available: bool = False
-    ) -> List[Dict[str, Any]]:
+    async def get_pokemon_info(self, pokemon: str) -> Dict[str, Any]:
         """
-        Search for Pokemon with filters
+        Get detailed Pokemon info from PokeAPI
         
         Args:
-            query: Pokemon name or search term
-            pokemon_type: Pokemon type (e.g., 'Fire', 'Water')
-            max_price: Maximum price filter
-            only_available: Only show available Pokemon
+            pokemon: Pokemon name or number (e.g., "pikachu" or "25")
             
         Returns:
-            List of matching Pokemon
+            Dict with Pokemon abilities, types, stats, sprites
         """
-        if not self.catalog_data:
-            return []
+        return await self.call_tool("get_pokemon_info", {"pokemon": pokemon})
         
-        results = self.catalog_data.copy()
+    async def get_pokemon_price(self, pokemon: str) -> Dict[str, Any]:
+        """
+        Get Pokemon price and inventory from local catalog
         
-        # Filter by query
-        if query:
-            query_lower = query.lower()
-            results = [
-                p for p in results
-                if query_lower in p['nombre'].lower() or
-                   query_lower == str(p['numero'])
-            ]
+        Args:
+            pokemon: Pokemon name or number
+            
+        Returns:
+            Dict with price, stock availability, sales info
+        """
+        return await self.call_tool("get_pokemon_price", {"pokemon": pokemon})
         
-        # Filter by price
+    async def search_pokemon(
+        self,
+        type: Optional[str] = None,
+        min_price: Optional[float] = None,
+        max_price: Optional[float] = None,
+        only_available: bool = False,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Search Pokemon with filters
+        
+        Args:
+            type: Pokemon type (fire, water, grass, etc)
+            min_price: Minimum price in USD
+            max_price: Maximum price in USD
+            only_available: Only show in-stock Pokemon
+            limit: Max results
+            
+        Returns:
+            List of matching Pokemon with complete info
+        """
+        args = {"limit": limit}
+        if type:
+            args["type"] = type
+        if min_price is not None:
+            args["minPrice"] = min_price
         if max_price is not None:
-            results = [p for p in results if p['precio'] <= max_price]
-        
-        # Filter by availability
+            args["maxPrice"] = max_price
         if only_available:
-            results = [
-                p for p in results
-                if p.get('enVenta') and
-                   p['inventario']['disponibles'] > 0
-            ]
+            args["onlyAvailable"] = only_available
+            
+        return await self.call_tool("search_pokemon", args)
         
-        return results
+    async def list_pokemon_types(self) -> List[str]:
+        """
+        Get all available Pokemon types
+        
+        Returns:
+            List of type names (excludes "unknown" and "shadow")
+        """
+        result = await self.call_tool("list_pokemon_types", {})
+        return result.get("types", [])
+        
+    async def get_pokemon_product(self, product_id: str) -> Dict[str, Any]:
+        """
+        Get detailed product info combining PokeAPI + local pricing
+        
+        Args:
+            product_id: Pokemon number (1-151)
+            
+        Returns:
+            Dict with complete Pokemon + pricing data
+        """
+        return await self.call_tool("get_pokemon_product", {"product_id": product_id})
+        
+    async def create_pokemon_cart(self, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Create a CartMandate for Pokemon purchase (AP2 protocol)
+        
+        Args:
+            items: List of items with format:
+                   [{"product_id": "25", "quantity": 1}, ...]
+                   
+        Returns:
+            CartMandate dict ready for AP2 payment processing
+        """
+        return await self.call_tool("create_pokemon_cart", {"items": items})
+        
+    async def get_current_cart(self) -> Dict[str, Any]:
+        """
+        Get the current active cart
+        
+        Returns:
+            CartMandate if exists, or message if empty
+        """
+        return await self.call_tool("get_current_cart", {})
 
 
-# Factory function to create the appropriate client
-def create_mcp_client(use_real_mcp: bool = False) -> Any:
+# ============================================
+# Context Manager Support
+# ============================================
+
+class MCPClientContextManager:
+    """Context manager for automatic connection/disconnection"""
+    
+    def __init__(self, server_script_path: str):
+        self.client = MCPClient(server_script_path)
+        
+    async def __aenter__(self):
+        await self.client.connect()
+        return self.client
+        
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.client.disconnect()
+
+
+# ============================================
+# Utility function
+# ============================================
+
+def get_mcp_client(server_script_path: Optional[str] = None) -> MCPClientContextManager:
     """
-    Create MCP client
+    Get an MCP client context manager
     
     Args:
-        use_real_mcp: If True, use real MCP protocol client.
-                     If False, use simplified client.
-    
+        server_script_path: Path to MCP server. If None, uses env var MCP_SERVER_PATH
+        
     Returns:
-        MCP client instance
+        Context manager that handles connection/disconnection
+        
+    Example:
+        async with get_mcp_client() as mcp:
+            result = await mcp.search_pokemon(type="fire", limit=5)
     """
-    if use_real_mcp:
-        import os
-        mcp_server_path = os.path.join(
-            os.path.dirname(__file__),
-            "../../../mcp-server/build/index.js"
-        )
-        return MCPClient(f"node {mcp_server_path}")
-    else:
-        return SimpleMCPClient()
+    if server_script_path is None:
+        # Try environment variable first
+        server_script_path = os.getenv("MCP_SERVER_PATH")
+        
+        # If not set, calculate absolute path relative to this file
+        if not server_script_path:
+            current_file = os.path.abspath(__file__)
+            # From ap2-integration/src/common/mcp_client.py to mcp-server/build/index.js
+            repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+            server_script_path = os.path.join(repo_root, "mcp-server", "build", "index.js")
+    
+    return MCPClientContextManager(server_script_path)
+
+
+# ============================================
+# CLI for testing
+# ============================================
+
+async def test_mcp_client():
+    """Test MCP client functionality"""
+    print("🧪 Testing MCP Client\n")
+    
+    async with get_mcp_client() as mcp:
+        # List available tools
+        print("📋 Available tools:")
+        tools = await mcp.list_tools()
+        for tool in tools:
+            print(f"  - {tool['name']}: {tool['description']}")
+        print()
+        
+        # Test get_pokemon_info
+        print("🔍 Getting Pikachu info...")
+        pikachu = await mcp.get_pokemon_info("pikachu")
+        print(f"  Name: {pikachu['name']}")
+        print(f"  Types: {', '.join(pikachu['types'])}")
+        print()
+        
+        # Test get_pokemon_price
+        print("💰 Getting Pikachu price...")
+        price_info = await mcp.get_pokemon_price("25")
+        print(f"  Price: ${price_info['precio']} USD")
+        print(f"  Available: {price_info['inventario']['disponibles']}")
+        print()
+        
+        # Test search
+        print("🔥 Searching fire Pokemon...")
+        fire_pokemon = await mcp.search_pokemon(type="fire", limit=3)
+        for p in fire_pokemon:
+            print(f"  - {p['name']} (#{p['numero']}): ${p['precio']} USD")
+        print()
+        
+        # Test create cart
+        print("🛒 Creating cart...")
+        cart = await mcp.create_pokemon_cart([
+            {"product_id": "25", "quantity": 1}  # Pikachu
+        ])
+        print(f"  Cart ID: {cart['contents']['id']}")
+        print(f"  Total: ${cart['contents']['payment_request']['details']['total']['amount']['value']}")
+        print()
+        
+        print("✅ All tests passed!")
+
+
+if __name__ == "__main__":
+    # Run tests
+    asyncio.run(test_mcp_client())

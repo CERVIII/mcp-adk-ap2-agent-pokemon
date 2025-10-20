@@ -1,268 +1,411 @@
 # Pokemon AP2 Integration
 
-Integración del protocolo **AP2 (Agent Payments Protocol)** para un marketplace de Pokemon. Implementa los roles principales de AP2 para demostrar transacciones seguras entre agentes de IA.
-
-## 🎯 ¿Qué es AP2?
-
-AP2 (Agent Payments Protocol) es un protocolo abierto para la economía de agentes emergente. Diseñado para habilitar comercio seguro, confiable e interoperable entre agentes de IA, desarrolladores, comerciantes y la industria de pagos.
-
-### Conceptos Clave de AP2
-
-1. **CartMandate**: Representa la autorización explícita del usuario para un carrito específico con items y precios exactos
-2. **PaymentMandate**: Contiene la autorización final del usuario incluyendo el método de pago
-3. **IntentMandate**: Captura las condiciones bajo las cuales un agente puede hacer compras en nombre del usuario
-4. **Verifiable Credentials**: Credenciales digitales firmadas criptográficamente que sirven como base de confianza
+Esta carpeta contiene la implementación completa del protocolo **AP2 (Agent Payments Protocol)** para el marketplace de Pokemon.
 
 ## 🏗️ Arquitectura
 
 ```
-┌─────────────────────┐         ┌─────────────────────┐
-│  Shopping Agent     │ ◄─────► │  Merchant Agent     │
-│  (Puerto 8000)      │   AP2   │  (Puerto 8001)      │
-│                     │ Protocol│                     │
-│  - Buscar Pokemon   │         │  - Gestión catálogo │
-│  - Crear carrito    │         │  - Crear CartMandate│
-│  - Procesar pago    │         │  - Procesar pagos   │
-└─────────────────────┘         └─────────────────────┘
-         │                               │
-         │                               │
-         ▼                               ▼
-     Gemini 2.5                    pokemon-gen1.json
-   (Google ADK)                  (Catálogo local)
+┌─────────────────┐
+│   User/Claude   │
+└────────┬────────┘
+         │
+         ▼
+┌──────────────────────────────────────┐
+│     Shopping Agent (Port 8000)       │  ← Orquestador principal
+│  - Interactúa con usuario            │
+│  - Llama MCP tools (catálogo)        │
+│  - Coordina con otros agentes        │
+└──────────┬───────────────────────────┘
+           │
+           ├──────────────────────────────┐
+           │                              │
+           ▼                              ▼
+┌─────────────────────────┐    ┌─────────────────────────┐
+│  Merchant Agent (8001)  │    │ Credentials Provider    │
+│  - Gestiona CartMandates│    │      (Port 8002)        │
+│  - Valida inventario    │    │  - Métodos de pago      │
+│  - Firma carritos       │    │  - Tokens de pago       │
+└──────────┬──────────────┘    └─────────────────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Payment Processor (8003)│
+│  - Procesa pagos        │
+│  - Valida mandatos      │
+└─────────────────────────┘
 ```
 
-### Flujo de Transacción AP2
+## 🔑 Conceptos Clave de AP2
 
-1. **Usuario** → Shopping Agent: "Quiero comprar un Pikachu"
-2. **Shopping Agent** → Merchant Agent: Buscar Pokemon
-3. **Merchant Agent** → Shopping Agent: Resultados del catálogo
-4. **Shopping Agent** → Usuario: Mostrar opciones
-5. **Usuario** → Shopping Agent: Confirmar selección
-6. **Shopping Agent** → Merchant Agent: Crear CartMandate
-7. **Merchant Agent** → Shopping Agent: CartMandate firmado
-8. **Usuario** → Shopping Agent: Confirmar compra
-9. **Shopping Agent**: Crear PaymentMandate
-10. **Shopping Agent** → Merchant Agent: Procesar pago
-11. **Merchant Agent** → Shopping Agent: Recibo de transacción
-12. **Shopping Agent** → Usuario: Confirmación de compra
+### Verifiable Digital Credentials (VDCs)
 
-## 📦 Componentes
+1. **CartMandate**: Carrito firmado por el merchant con productos y precio exacto
+   - Ya implementado en tu MCP server (`create_pokemon_cart`)
+   - Contiene: items, precios, merchant_signature, timestamp
 
-### Merchant Agent (`merchant_agent.py`)
+2. **PaymentMandate**: Autorización de pago del usuario
+   - Contiene: método de pago, shipping, autorización del usuario
+   - Se firma en "trusted surface" (ej: dispositivo del usuario)
 
-- **Puerto**: 8001
-- **Responsabilidades**:
-  - Gestionar catálogo de Pokemon
-  - Crear CartMandates
-  - Procesar pagos
-  - Generar recibos de transacciones
-- **Endpoints**:
-  - `GET /catalog` - Obtener catálogo completo
-  - `POST /catalog/search` - Buscar Pokemon
-  - `POST /cart/create` - Crear carrito
-  - `POST /payment/process` - Procesar pago
-  - `GET /.well-known/agent-card.json` - A2A Agent Card
+3. **IntentMandate**: Para compras autónomas (futuro, no en este proyecto)
 
-### Shopping Agent (`shopping_agent.py`)
+### Flujo de Compra (Human-Present)
 
-- **Puerto**: 8000
-- **Responsabilidades**:
-  - Asistir al usuario en compras
-  - Buscar Pokemon
-  - Gestionar carrito de compras
-  - Crear PaymentMandates
-  - Completar transacciones
-- **Herramientas**:
-  - `search_pokemon` - Buscar en catálogo
-  - `create_shopping_cart` - Crear carrito
-  - `list_payment_methods` - Listar métodos de pago
-  - `checkout` - Completar compra
-
-### Common Utilities
-
-- `pokemon_utils.py` - Utilidades para gestión de catálogo
-- `ap2_types.py` - Tipos de datos del protocolo AP2
-- `mcp_client.py` - Cliente para comunicación con MCP Server
-
-## 🚀 Instalación y Configuración
-
-### 1. Instalar dependencias
-
-```bash
-cd ap2-integration
-uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests
-```
-
-### 2. Configurar variables de entorno
-
-```bash
-cp .env.example .env
-```
-
-Edita `.env` y añade tu Google API Key:
-
-```env
-GOOGLE_API_KEY=tu_api_key_aqui
-MERCHANT_AGENT_PORT=8001
-SHOPPING_AGENT_PORT=8000
-```
-
-## 🎮 Ejecución
-
-### Opción 1: Terminales Separadas
-
-#### Terminal 1: Merchant Agent
-```bash
-cd ap2-integration
-python -m src.roles.merchant_agent
-```
-
-#### Terminal 2: Shopping Agent
-```bash
-cd ap2-integration
-python -m src.roles.shopping_agent
-```
-
-### Opción 2: Script de inicio
-```bash
-./start_ap2_demo.sh
-```
-
-## 💬 Uso
-
-Una vez ambos agentes estén corriendo, interactúa con el Shopping Agent:
-
-```
-You: I want to buy a Pikachu
-
-🤖 Assistant: I found Pikachu in the catalog! It costs $250 USD 
-and we have 10 units in stock. Would you like me to add it to 
-your cart?
-
-You: Yes, add it to my cart
-
-🤖 Assistant: 🛒 Shopping Cart Created!
-Cart ID: cart_a1b2c3d4
-Items:
-  • Pikachu x1 - $250 each = $250 total
-
-Total: $250 USD
-Ready for checkout!
-
-You: Proceed to checkout
-
-🤖 Assistant: ✅ Payment Successful!
-Transaction ID: txn_x9y8z7w6
-Status: SUCCESS
-Message: Successfully purchased 1 Pokemon for $250.00 USD
-Total Paid: $250 USD
-```
-
-## 🧪 Testing con curl
-
-### Buscar Pokemon
-```bash
-curl -X POST http://localhost:8001/catalog/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "pikachu"}'
-```
-
-### Crear Carrito
-```bash
-curl -X POST http://localhost:8001/cart/create \
-  -H "Content-Type: application/json" \
-  -d '{
-    "items": [
-      {"pokemon": "pikachu", "quantity": 1}
-    ]
-  }'
-```
-
-### Ver Agent Card
-```bash
-curl http://localhost:8001/.well-known/agent-card.json
-```
-
-## 📊 Estado del Proyecto
-
-- [x] Tipos AP2 (CartMandate, PaymentMandate, etc.)
-- [x] Merchant Agent con API REST
-- [x] Shopping Agent con Google ADK
-- [x] Integración con catálogo Pokemon
-- [x] Flujo de compra básico
-- [ ] Credentials Provider Agent
-- [ ] Soporte completo A2A protocol
-- [ ] Firmas digitales reales
-- [ ] Integración con payment processors reales
-- [ ] Manejo de desafíos 3DS
-- [ ] IntentMandate para compras autónomas
-
-## 🔐 Seguridad
-
-**⚠️ IMPORTANTE**: Esta es una implementación de demostración.
-
-Para producción, se requiere:
-- Firmas digitales criptográficas reales
-- Validación de PaymentMandates
-- Integración con procesadores de pago reales
-- Manejo seguro de credenciales
-- Auditoría completa de transacciones
-- Cumplimiento de PCI DSS
+1. Usuario: "Quiero comprar un Pikachu"
+2. Shopping Agent busca en catálogo (vía MCP)
+3. Merchant Agent crea CartMandate firmado
+4. Shopping Agent solicita métodos de pago
+5. Credentials Provider devuelve opciones
+6. Usuario selecciona método y confirma
+7. Se crea PaymentMandate
+8. Payment Processor ejecuta el pago
+9. Usuario recibe recibo
 
 ## 📁 Estructura
 
 ```
 ap2-integration/
 ├── src/
-│   ├── common/
-│   │   ├── pokemon_utils.py    # Utilidades de catálogo
-│   │   ├── ap2_types.py         # Tipos del protocolo AP2
-│   │   └── mcp_client.py        # Cliente MCP
-│   └── roles/
-│       ├── merchant_agent.py    # Merchant Agent (FastAPI)
-│       └── shopping_agent.py    # Shopping Agent (ADK)
-├── pyproject.toml
-├── .env.example
-└── README.md                    # Este archivo
+│   ├── common/                  # Utilidades compartidas
+│   │   ├── ap2_types.py        # Tipos AP2 (CartMandate, PaymentMandate, etc)
+│   │   ├── mcp_client.py       # Cliente para conectar con MCP server
+│   │   └── utils.py            # Helpers generales
+│   │
+│   ├── shopping_agent/         # Shopping Agent (ADK/Gemini)
+│   │   ├── __main__.py         # Entry point
+│   │   ├── agent.py            # Lógica del agente
+│   │   ├── web_ui.py           # 🌟 FastAPI Web UI
+│   │   └── tools.py            # Tools específicas
+│   │
+│   ├── merchant_agent/         # Merchant Agent (FastAPI)
+│   │   ├── __main__.py
+│   │   ├── server.py           # API endpoints
+│   │   └── cart_manager.py    # Gestión de carritos
+│   │
+│   ├── credentials_provider/   # Credentials Provider (FastAPI)
+│   │   ├── __main__.py
+│   │   └── server.py           # Métodos de pago simulados
+│   │
+│   ├── payment_processor/      # Payment Processor (FastAPI)
+│   │   ├── __main__.py
+│   │   └── server.py           # Procesamiento de pagos
+│   │
+│   └── common/                 # Utilidades compartidas
+│       ├── ap2_types.py        # Tipos AP2 (CartMandate, PaymentMandate, etc)
+│       ├── mcp_client.py       # Cliente para conectar con MCP server
+│       └── utils.py            # 🔐 JWT RS256 generation
+│
+├── pyproject.toml              # Dependencias (incluye pyjwt, cryptography)
+├── .env.example                # Variables de entorno
+└── README.md                   # Esta documentación
 ```
+
+## 🔐 JWT Implementation (RS256)
+
+Este proyecto implementa **firmas digitales reales** usando JWT con algoritmo RS256:
+
+### Merchant Signature (CartMandate)
+
+```python
+# En utils.py - Generación de claves RSA 2048-bit
+MERCHANT_PRIVATE_KEY = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048,
+    backend=default_backend()
+)
+
+# JWT firmado con RS256
+def generate_merchant_signature(cart_id: str) -> str:
+    payload = {
+        "iss": "PokeMart",              # Issuer
+        "sub": cart_id,                 # Subject (cart ID)
+        "iat": int(now.timestamp()),    # Issued at
+        "exp": int((now + timedelta(hours=1)).timestamp()),
+        "cart_id": cart_id,
+        "merchant": "PokeMart - Primera Generación"
+    }
+    return jwt.encode(payload, MERCHANT_PRIVATE_PEM, algorithm="RS256")
+```
+
+### User Authorization (PaymentMandate)
+
+```python
+# JWT-VC (Verifiable Credential) firmado por el usuario
+def generate_user_authorization(cart_hash: str, payment_hash: str) -> str:
+    payload = {
+        "iss": "user_device",
+        "sub": "trainer@pokemon.com",
+        "iat": int(now.timestamp()),
+        "exp": int((now + timedelta(minutes=15)).timestamp()),
+        "cart_hash": cart_hash,
+        "payment_hash": payment_hash,
+        "vc": {  # Verifiable Credential
+            "type": ["VerifiableCredential", "PaymentAuthorization"],
+            "credentialSubject": {
+                "id": "did:example:user123",
+                "cart_hash": cart_hash,
+                "payment_hash": payment_hash,
+                "consent": "explicit"
+            }
+        }
+    }
+    return jwt.encode(payload, USER_PRIVATE_PEM, algorithm="RS256")
+```
+
+**Características**:
+- ✅ RSA 2048-bit private keys
+- ✅ RS256 algorithm (RSA + SHA-256)
+- ✅ Proper expiration times (1h merchant, 15min user)
+- ✅ Verifiable Credential format (JWT-VC)
+- ✅ Complete claims structure
+
+## 🌐 Web UI - Shopping Interface
+
+El Shopping Agent incluye una **interfaz web completa** para comprar Pokemon:
+
+### Características de la Web UI
+
+- **Catálogo visual**: Lista de Pokemon con imágenes y detalles
+- **Búsqueda avanzada**: Por nombre, tipo, precio, disponibilidad
+- **Shopping cart**: Agregar/remover items, persistente
+- **Checkout AP2**: Flujo completo de pago con CartMandate/PaymentMandate
+- **Responsive design**: Interfaz moderna con CSS personalizado
+
+### Endpoints disponibles
+
+```
+GET  /                      # Interfaz web principal
+GET  /api/search            # Buscar Pokemon
+POST /api/cart/add          # Agregar al carrito
+GET  /api/cart              # Ver carrito actual
+POST /api/cart/checkout     # Procesar pago (AP2)
+DELETE /api/cart/clear      # Limpiar carrito
+GET  /api/types             # Lista de tipos Pokemon
+```
+
+### Iniciar Web UI
+
+```bash
+# Desde la raíz del proyecto
+./scripts/run-shopping-agent.sh
+
+# O manualmente
+cd ap2-integration
+uv run python src/shopping_agent/web_ui.py
+
+# Abrir en navegador
+open http://localhost:8000
+```
+
+### Demo rápido
+
+```bash
+# GET /api/quick-demo - Compra automática de Pikachu
+curl http://localhost:8000/api/quick-demo
+```
+
+## 🛠️ Estructura de Archivos (Actualizada)
+
+## 🚀 Instalación
+
+### 1. Requisitos previos
+
+```bash
+# Instalar uv (gestor de paquetes Python)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# API Key de Google AI Studio
+# Obtén tu key en: https://aistudio.google.com/apikey
+```
+
+### 2. Configurar entorno
+
+```bash
+cd ap2-integration
+
+# Copiar .env de ejemplo
+cp .env.example .env
+
+# Editar .env y agregar tu GOOGLE_API_KEY
+nano .env
+```
+
+### 3. Instalar dependencias
+
+```bash
+# Desde la raíz del proyecto
+make setup
+
+# O manualmente
+uv sync
+```
+
+## 🎮 Uso
+
+### Opción 1: Script automatizado (Recomendado)
+
+```bash
+# Desde la raíz del proyecto
+./scripts/run-ap2-demo.sh
+```
+
+Este script:
+- Inicia todos los agentes en terminales separadas
+- Configura los puertos correctos
+- Muestra logs en tiempo real
+
+### Opción 2: Manual (para desarrollo)
+
+```bash
+# Terminal 1 - Merchant Agent
+uv run python -m src.merchant_agent
+
+# Terminal 2 - Credentials Provider
+uv run python -m src.credentials_provider
+
+# Terminal 3 - Payment Processor
+uv run python -m src.payment_processor
+
+# Terminal 4 - Shopping Agent (con UI)
+uv run python -m src.shopping_agent
+```
+
+Luego abre: http://localhost:8000/dev-ui
+
+### Opción 3: Desde Claude Desktop
+
+1. El MCP server ya está configurado en `claude_desktop_config.json`
+2. Reinicia Claude Desktop
+3. Las tools de Pokemon estarán disponibles automáticamente
+4. Ejemplo de prompt:
+
+```
+Quiero comprar un Pikachu. Búscalo, crea un carrito y procesa el pago.
+```
+
+## 🧪 Testing
+
+```bash
+# Test rápido de MCP
+python tests/test_mcp_simple.py
+
+# Test de creación de carrito
+python tests/test_get_cart.py
+
+# Test completo de integración
+./tests/test_unified_mcp.sh
+```
+
+## 📚 Endpoints de los Agentes
+
+### Merchant Agent (8001)
+
+- `POST /a2a/merchant_agent/create_cart` - Crea CartMandate
+- `GET /a2a/merchant_agent/cart/{cart_id}` - Obtiene carrito
+- `GET /a2a/merchant_agent/.well-known/agent-card.json` - AgentCard
+
+### Credentials Provider (8002)
+
+- `GET /a2a/credentials_provider/payment_methods` - Lista métodos de pago
+- `POST /a2a/credentials_provider/tokenize` - Tokeniza método de pago
+- `GET /a2a/credentials_provider/.well-known/agent-card.json` - AgentCard
+
+### Payment Processor (8003)
+
+- `POST /a2a/processor/charge` - Procesa pago con PaymentMandate
+- `POST /a2a/processor/validate` - Valida mandatos
+- `GET /a2a/processor/.well-known/agent-card.json` - AgentCard
+
+## 🔐 Seguridad (Simplificada para Demo)
+
+⚠️ **NOTA**: Esta es una implementación de demostración. En producción deberías:
+
+1. **Firmas reales**: Usar JWT/JWS con claves privadas reales
+2. **Validación de firmas**: Verificar todas las signatures con claves públicas
+3. **HTTPS**: Todos los endpoints deben usar TLS
+4. **Autenticación**: OAuth2/OpenID Connect para usuarios
+5. **Rate limiting**: Prevenir abuso
+6. **PCI compliance**: Para datos de tarjetas reales
+7. **Logging seguro**: No logear datos sensibles
+
+Actualmente:
+- Las firmas son simuladas (`sig_merchant_pokemon_xxx`)
+- No hay validación criptográfica real
+- HTTP en lugar de HTTPS
+- Sin autenticación de usuarios
 
 ## 🐛 Troubleshooting
 
-### "Connection refused" al conectar con Merchant Agent
-- Asegúrate de que el Merchant Agent esté corriendo en el puerto 8001
-- Verifica con: `curl http://localhost:8001/`
+### Error: "Connection refused" al conectar con MCP server
 
-### "GOOGLE_API_KEY not configured"
-- Verifica que existe el archivo `.env`
-- Asegúrate de que contiene tu API key de Google
-
-### Pokemon no encontrado
-- Solo Pokemon de Gen 1 (1-151) están disponibles
-- Verifica el nombre en `pokemon-gen1.json`
-
-### Error de importación "No module named 'src'"
 ```bash
-# Usar PYTHONPATH
-cd ap2-integration
-PYTHONPATH=. python -m src.roles.merchant_agent
+# Verificar que el MCP server esté compilado
+cd mcp-server
+npm run build
 ```
 
-## 🤝 Relación con otros componentes
+### Error: "GOOGLE_API_KEY not found"
 
-Este módulo se integra con:
-- **MCP Server** (`../mcp-server/`) - Catálogo unificado con AP2
-- **ADK Agent** (`../adk-agent/`) - Agente base con Gemini
-- **pokemon-gen1.json** - Catálogo de precios compartido
+```bash
+# Asegúrate de tener el .env configurado
+cat ap2-integration/.env
+# Debe contener: GOOGLE_API_KEY=tu_key_aqui
+```
 
-## 📚 Referencias
+### Error: "Port already in use"
 
-- [AP2 Protocol Specification](https://google-agentic-commerce.github.io/AP2/)
+```bash
+# Matar procesos en puertos específicos
+lsof -ti:8000 | xargs kill -9  # Shopping Agent
+lsof -ti:8001 | xargs kill -9  # Merchant Agent
+lsof -ti:8002 | xargs kill -9  # Credentials Provider
+lsof -ti:8003 | xargs kill -9  # Payment Processor
+```
+
+### Los agentes no se comunican
+
+```bash
+# Verificar que todos estén corriendo
+curl http://localhost:8001/a2a/merchant_agent/.well-known/agent-card.json
+curl http://localhost:8002/a2a/credentials_provider/.well-known/agent-card.json
+curl http://localhost:8003/a2a/processor/.well-known/agent-card.json
+```
+
+## 📖 Referencias
+
+- [AP2 Protocol Official Docs](https://ap2-protocol.org)
 - [AP2 GitHub Repository](https://github.com/google-agentic-commerce/AP2)
-- [A2A Protocol](https://a2a-protocol.org/)
-- [Google ADK Documentation](https://google.github.io/adk-docs/)
+- [MCP Protocol](https://modelcontextprotocol.io)
+- [A2A Protocol](https://a2a-protocol.org)
+- [Agent Development Kit (ADK)](https://google.github.io/adk-docs/)
 
----
+## 🤝 Contribuciones
 
-**AP2 Integration - Pokemon Marketplace**  
-**Versión**: 1.0  
-**Última actualización**: 20 de Octubre de 2025
+Este proyecto está basado en:
+- Google AP2 Protocol (Apache 2.0)
+- Model Context Protocol (MIT)
+- Datos de PokeAPI
+
+## 📝 TODO / Roadmap
+
+- [ ] Implementar IntentMandate (human-not-present)
+- [ ] Agregar manejo de shipping/direcciones
+- [ ] Implementar refunds/devoluciones
+- [ ] Agregar persistencia (DB real en lugar de in-memory)
+- [ ] Firmas criptográficas reales
+- [ ] Tests unitarios completos
+- [ ] UI web mejorada
+- [ ] Soporte para múltiples currencies
+- [ ] Integración con x402 protocol (stablecoins)
+
+## 🔐 NOTA DE SEGURIDAD:
+   Esta es una implementación de DEMOSTRACIÓN. Para producción necesitas:
+- Firmas criptográficas reales (JWT/JWS)
+- HTTPS en todos los endpoints
+- Autenticación OAuth2/OIDC
+- PCI compliance para tarjetas reales
+
+## 📖 APRENDE MÁS:
+- AP2 Protocol: https://ap2-protocol.org
+- AP2 GitHub: https://github.com/google-agentic-commerce/AP2
+- MCP Protocol: https://modelcontextprotocol.io
