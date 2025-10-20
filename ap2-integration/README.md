@@ -1,10 +1,10 @@
 # Pokemon AP2 Integration
 
-Integración del protocolo AP2 (Agent Payments Protocol) para un marketplace de Pokemon. Este proyecto implementa los roles principales de AP2 para demostrar transacciones seguras entre agentes de IA.
+Integración del protocolo **AP2 (Agent Payments Protocol)** para un marketplace de Pokemon. Implementa los roles principales de AP2 para demostrar transacciones seguras entre agentes de IA.
 
 ## 🎯 ¿Qué es AP2?
 
-AP2 (Agent Payments Protocol) es un protocolo abierto para la economía de agentes emergente. Está diseñado para habilitar comercio seguro, confiable e interoperable entre agentes de IA, desarrolladores, comerciantes y la industria de pagos.
+AP2 (Agent Payments Protocol) es un protocolo abierto para la economía de agentes emergente. Diseñado para habilitar comercio seguro, confiable e interoperable entre agentes de IA, desarrolladores, comerciantes y la industria de pagos.
 
 ### Conceptos Clave de AP2
 
@@ -14,8 +14,6 @@ AP2 (Agent Payments Protocol) es un protocolo abierto para la economía de agent
 4. **Verifiable Credentials**: Credenciales digitales firmadas criptográficamente que sirven como base de confianza
 
 ## 🏗️ Arquitectura
-
-Este proyecto implementa dos roles principales de AP2:
 
 ```
 ┌─────────────────────┐         ┌─────────────────────┐
@@ -29,8 +27,8 @@ Este proyecto implementa dos roles principales de AP2:
          │                               │
          │                               │
          ▼                               ▼
-    Gemini 2.5                    pokemon-gen1.json
-    (Google ADK)                  (Catálogo local)
+     Gemini 2.5                    pokemon-gen1.json
+   (Google ADK)                  (Catálogo local)
 ```
 
 ### Flujo de Transacción AP2
@@ -51,6 +49,7 @@ Este proyecto implementa dos roles principales de AP2:
 ## 📦 Componentes
 
 ### Merchant Agent (`merchant_agent.py`)
+
 - **Puerto**: 8001
 - **Responsabilidades**:
   - Gestionar catálogo de Pokemon
@@ -65,6 +64,7 @@ Este proyecto implementa dos roles principales de AP2:
   - `GET /.well-known/agent-card.json` - A2A Agent Card
 
 ### Shopping Agent (`shopping_agent.py`)
+
 - **Puerto**: 8000
 - **Responsabilidades**:
   - Asistir al usuario en compras
@@ -79,8 +79,10 @@ Este proyecto implementa dos roles principales de AP2:
   - `checkout` - Completar compra
 
 ### Common Utilities
+
 - `pokemon_utils.py` - Utilidades para gestión de catálogo
 - `ap2_types.py` - Tipos de datos del protocolo AP2
+- `mcp_client.py` - Cliente para comunicación con MCP Server
 
 ## 🚀 Instalación y Configuración
 
@@ -88,7 +90,7 @@ Este proyecto implementa dos roles principales de AP2:
 
 ```bash
 cd ap2-integration
-uv pip install fastapi uvicorn pydantic python-dotenv google-adk
+uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests
 ```
 
 ### 2. Configurar variables de entorno
@@ -107,7 +109,7 @@ SHOPPING_AGENT_PORT=8000
 
 ## 🎮 Ejecución
 
-### Opción 1: Modo Terminal Separadas
+### Opción 1: Terminales Separadas
 
 #### Terminal 1: Merchant Agent
 ```bash
@@ -121,8 +123,7 @@ cd ap2-integration
 python -m src.roles.shopping_agent
 ```
 
-### Opción 2: Script de inicio (próximamente)
-
+### Opción 2: Script de inicio
 ```bash
 ./start_ap2_demo.sh
 ```
@@ -208,20 +209,6 @@ Para producción, se requiere:
 - Auditoría completa de transacciones
 - Cumplimiento de PCI DSS
 
-## 📚 Referencias
-
-- [AP2 Protocol Specification](https://ap2-protocol.net/)
-- [AP2 GitHub Repository](https://github.com/google-agentic-commerce/AP2)
-- [A2A Protocol](https://a2a-protocol.org/)
-- [Google ADK Documentation](https://google.github.io/adk-docs/)
-
-## 🤝 Relación con otros componentes
-
-Este módulo se integra con:
-- **MCP Server** (`../mcp-server/`) - Para acceso a PokeAPI
-- **ADK Agent** (`../adk-agent/`) - Agente base con Gemini
-- **pokemon-gen1.json** - Catálogo de precios compartido
-
 ## 📁 Estructura
 
 ```
@@ -229,13 +216,14 @@ ap2-integration/
 ├── src/
 │   ├── common/
 │   │   ├── pokemon_utils.py    # Utilidades de catálogo
-│   │   └── ap2_types.py         # Tipos del protocolo AP2
+│   │   ├── ap2_types.py         # Tipos del protocolo AP2
+│   │   └── mcp_client.py        # Cliente MCP
 │   └── roles/
 │       ├── merchant_agent.py    # Merchant Agent (FastAPI)
 │       └── shopping_agent.py    # Shopping Agent (ADK)
 ├── pyproject.toml
 ├── .env.example
-└── README.md
+└── README.md                    # Este archivo
 ```
 
 ## 🐛 Troubleshooting
@@ -252,11 +240,29 @@ ap2-integration/
 - Solo Pokemon de Gen 1 (1-151) están disponibles
 - Verifica el nombre en `pokemon-gen1.json`
 
-## 🎓 Aprendiendo AP2
+### Error de importación "No module named 'src'"
+```bash
+# Usar PYTHONPATH
+cd ap2-integration
+PYTHONPATH=. python -m src.roles.merchant_agent
+```
 
-Para entender mejor el protocolo AP2:
+## 🤝 Relación con otros componentes
 
-1. **Leer la especificación**: https://ap2-protocol.net/en/specification
-2. **Ver ejemplos oficiales**: https://github.com/google-agentic-commerce/AP2/tree/main/samples
-3. **Explorar este código**: Comentarios detallados en cada archivo
-4. **Experimentar**: Modifica el flujo y observa los resultados
+Este módulo se integra con:
+- **MCP Server** (`../mcp-server/`) - Catálogo unificado con AP2
+- **ADK Agent** (`../adk-agent/`) - Agente base con Gemini
+- **pokemon-gen1.json** - Catálogo de precios compartido
+
+## 📚 Referencias
+
+- [AP2 Protocol Specification](https://google-agentic-commerce.github.io/AP2/)
+- [AP2 GitHub Repository](https://github.com/google-agentic-commerce/AP2)
+- [A2A Protocol](https://a2a-protocol.org/)
+- [Google ADK Documentation](https://google.github.io/adk-docs/)
+
+---
+
+**AP2 Integration - Pokemon Marketplace**  
+**Versión**: 1.0  
+**Última actualización**: 20 de Octubre de 2025

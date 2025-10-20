@@ -1,0 +1,113 @@
+# ============================================
+# Node.js / TypeScript
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Build outputs
+build/
+dist/
+*.js.map
+*.d.ts.map
+
+# TypeScript cache
+*.tsbuildinfo
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Python package manager
+pip-log.txt
+pip-delete-this-directory.txt
+.uv/
+
+# ============================================
+# Environment & Secrets
+# ============================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# ============================================
+# IDE & Editors
+# ============================================
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+
+# ============================================
+# Temporary files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
+
+# ============================================
+# Documentation (keeping only README.md)
+# ============================================
+MIGRATION_GUIDE.md
+PROJECT_SUMMARY.md
+QUICKSTART.md
+TESTING_GUIDE.md
+UNIFIED_SERVER_READY.md
+mcp-server/README_AP2.md
+
+# ============================================
+# OS specific
+# ============================================
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ============================================
+# Project specific
+# ============================================
+# Keep these files
+!pokemon-gen1.json
+!claude_desktop_config.json
+!.vscode/mcp.json
+
+# Ignore test outputs
+test-results/
+coverage/
+.pytest_cache/
+
+# Ignore compiled Python
+*.pyc
+
+# Ignore lock files (optional - uncomment if you want to ignore them)
+# package-lock.json
+# uv.lock

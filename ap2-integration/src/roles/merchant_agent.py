@@ -1,6 +1,7 @@
 """
-Merchant Agent - Manages Pokemon catalog and handles purchases
+Merchant Agent - Manages Pokemon cart and payment operations
 Following AP2 protocol specifications
+Catalog data is fetched from MCP Server
 """
 
 import os
@@ -10,20 +11,21 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 
-from ..common.pokemon_utils import (
-    load_pokemon_catalog,
-    find_pokemon_by_name,
-    find_pokemon_by_number,
-    search_pokemon,
+from src.common.mcp_client import create_mcp_client
+from src.common.pokemon_utils import (
     create_cart_item,
     format_price
 )
-from ..common.ap2_types import (
+from src.common.ap2_types import (
     CartMandate,
     CartItem,
     PaymentAmount,
     TransactionReceipt
 )
+
+
+# Initialize MCP client
+mcp_client = create_mcp_client(use_real_mcp=False)
 
 
 app = FastAPI(
@@ -63,10 +65,16 @@ transactions_storage: Dict[str, TransactionReceipt] = {}
 async def root():
     """Root endpoint"""
     return {
-        "name": "Pokemon Merchant Agent",
+        "name": "Pokemon Merchant Agent (AP2)",
         "version": "1.0.0",
         "protocol": "AP2",
-        "status": "active"
+        "status": "active",
+        "description": "Manages carts and payments using AP2 protocol. Catalog managed by MCP Server.",
+        "endpoints": {
+            "cart": "/cart/create",
+            "payment": "/payment/process",
+            "agent_card": "/.well-known/agent-card.json"
+        }
     }
 
 
@@ -90,22 +98,16 @@ async def agent_card():
         },
         "skills": [
             {
-                "id": "search_catalog",
-                "name": "Search Pokemon Catalog",
-                "description": "Search for Pokemon in the catalog by name, type, price range, etc.",
-                "tags": ["pokemon", "search", "catalog"]
-            },
-            {
                 "id": "create_cart",
-                "name": "Create Shopping Cart",
-                "description": "Create a cart with Pokemon items",
-                "tags": ["cart", "purchase"]
+                "name": "Create Shopping Cart (AP2 CartMandate)",
+                "description": "Create a cart mandate with Pokemon items for purchase authorization",
+                "tags": ["cart", "purchase", "ap2", "mandate"]
             },
             {
                 "id": "process_payment",
-                "name": "Process Payment",
-                "description": "Process a payment for a cart",
-                "tags": ["payment", "purchase"]
+                "name": "Process Payment (AP2 PaymentMandate)",
+                "description": "Process a payment mandate and complete the transaction",
+                "tags": ["payment", "purchase", "ap2", "mandate"]
             }
         ],
         "url": f"http://localhost:{os.getenv('MERCHANT_AGENT_PORT', 8001)}",
@@ -113,60 +115,15 @@ async def agent_card():
     }
 
 
-@app.get("/catalog")
-async def get_catalog():
-    """Get the full Pokemon catalog"""
-    try:
-        catalog = load_pokemon_catalog()
-        return {
-            "total": len(catalog),
-            "items": catalog
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/catalog/search")
-async def search_catalog(request: SearchRequest):
-    """Search Pokemon catalog with filters"""
-    try:
-        # Search by name if query provided
-        if request.query:
-            pokemon = find_pokemon_by_name(request.query)
-            if pokemon:
-                return {
-                    "total": 1,
-                    "results": [pokemon]
-                }
-            
-            # Try by number
-            try:
-                number = int(request.query)
-                pokemon = find_pokemon_by_number(number)
-                if pokemon:
-                    return {
-                        "total": 1,
-                        "results": [pokemon]
-                    }
-            except ValueError:
-                pass
-        
-        # General search with filters
-        results = search_pokemon(
-            type_filter=request.type,
-            max_price=request.max_price,
-            min_price=request.min_price,
-            only_available=request.only_available,
-            limit=request.limit
-        )
-        
-        return {
-            "total": len(results),
-            "results": results
-        }
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# NOTE: Catalog management has been moved to MCP Server
+# The merchant agent now focuses only on AP2 protocol operations:
+# - Cart management (CartMandates)
+# - Payment processing (PaymentMandates)
+# 
+# For catalog queries, use the MCP Server tools:
+# - get_pokemon_info
+# - get_pokemon_price
+# - search_pokemon
 
 
 @app.post("/cart/create")
@@ -175,7 +132,9 @@ async def create_cart(request: CreateCartRequest):
     Create a CartMandate - AP2 Core Concept
     
     A CartMandate represents the exact items and prices
-    that the user will authorize for purchase
+    that the user will authorize for purchase.
+    
+    Pokemon data is fetched from MCP Server.
     """
     try:
         cart_items: List[CartItem] = []
@@ -185,33 +144,27 @@ async def create_cart(request: CreateCartRequest):
             pokemon_query = item_request.get("pokemon")
             quantity = item_request.get("quantity", 1)
             
-            # Find the Pokemon
-            pokemon = find_pokemon_by_name(pokemon_query)
-            if not pokemon:
-                try:
-                    number = int(pokemon_query)
-                    pokemon = find_pokemon_by_number(number)
-                except ValueError:
-                    pass
+            # Fetch Pokemon data from MCP Server
+            pokemon = await mcp_client.get_pokemon_price(pokemon_query)
             
             if not pokemon:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"Pokemon '{pokemon_query}' not found"
+                    detail=f"Pokemon '{pokemon_query}' not found in catalog"
                 )
             
             # Check availability
             if not pokemon.get('enVenta', False):
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Pokemon '{pokemon['nombre']}' is not available for sale"
+                    detail=f"Pokemon '{pokemon['nombre']}' not available"
                 )
             
             available_stock = pokemon['inventario']['disponibles']
             if quantity > available_stock:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Only {available_stock} units of '{pokemon['nombre']}' available"
+                    detail=f"Only {available_stock} of '{pokemon['nombre']}'"
                 )
             
             # Create cart item
@@ -240,8 +193,6 @@ async def create_cart(request: CreateCartRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.get("/cart/{cart_id}")
 async def get_cart(cart_id: str):
     """Get a cart by ID"""
@@ -309,11 +260,20 @@ async def get_transaction(transaction_id: str):
 
 def main():
     """Run the Merchant Agent server"""
+    import asyncio
+    
     port = int(os.getenv("MERCHANT_AGENT_PORT", 8001))
     
-    print(f"🏪 Starting Pokemon Merchant Agent on port {port}...")
+    print(f"🏪 Starting Pokemon Merchant Agent (AP2) on port {port}...")
     print(f"📋 Agent Card: http://localhost:{port}/.well-known/agent-card.json")
-    print(f"🔍 Catalog: http://localhost:{port}/catalog")
+    print(f"� MCP Client: Connected to catalog data source")
+    print(f"💳 AP2 Endpoints: /cart/create, /payment/process")
+    
+    # Initialize MCP client
+    async def init_mcp():
+        await mcp_client.start()
+    
+    asyncio.run(init_mcp())
     
     uvicorn.run(app, host="127.0.0.1", port=port)
 

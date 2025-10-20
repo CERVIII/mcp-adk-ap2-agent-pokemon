@@ -29,7 +29,26 @@ class ShoppingAssistant:
     
     def __init__(self, merchant_url: str = "http://localhost:8001"):
         self.merchant_url = merchant_url
-        self.current_cart_id: str | None = None
+        self.current_cart: CartMandate | None = None
+        self.catalog_data = None
+        self._load_catalog()
+    
+    def _load_catalog(self):
+        """Load Pokemon catalog from JSON file (MCP responsibility)"""
+        import json
+        import os
+        
+        try:
+            # Load from project root
+            catalog_path = os.path.join(
+                os.path.dirname(__file__),
+                "../../../pokemon-gen1.json"
+            )
+            with open(catalog_path, 'r') as f:
+                self.catalog_data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load catalog: {e}")
+            self.catalog_data = []
         self.current_cart_total: float = 0.0
         
     def search_pokemon(
@@ -40,7 +59,7 @@ class ShoppingAssistant:
         only_available: bool = False
     ) -> str:
         """
-        Search for Pokemon in the merchant catalog
+        Search for Pokemon in the catalog (uses MCP data source)
         
         Args:
             query: Pokemon name or search term (optional)
@@ -51,43 +70,80 @@ class ShoppingAssistant:
         Returns:
             Formatted string with search results
         """
-        import requests
-        
         try:
-            response = requests.post(
-                f"{self.merchant_url}/catalog/search",
-                json={
-                    "query": query,
-                    "type": pokemon_type,
-                    "max_price": max_price,
-                    "only_available": only_available,
-                    "limit": 10
-                }
-            )
+            if not self.catalog_data:
+                return "❌ Catalog not available"
             
-            if response.status_code == 200:
-                data = response.json()
-                results = data.get("results", [])
-                
-                if not results:
-                    return f"No Pokemon found matching '{query}'"
-                
-                # Format results
-                output = [f"Found {len(results)} Pokemon:\n"]
-                for p in results:
-                    status = "✅ Available" if p.get('enVenta') else "❌ Not available"
-                    stock = p['inventario']['disponibles']
-                    output.append(
-                        f"  • {p['nombre'].capitalize()} (#{p['numero']}) - "
-                        f"${p['precio']:.2f} - Stock: {stock} - {status}"
-                    )
-                
-                return "\n".join(output)
+            results = []
+            
+            # Filter by query (name or number)
+            if query:
+                query_lower = query.lower()
+                for p in self.catalog_data:
+                    if (query_lower in p['nombre'].lower() or 
+                        query_lower == str(p['numero'])):
+                        results.append(p)
             else:
-                return f"Error searching: {response.status_code}"
+                results = self.catalog_data.copy()
+            
+            # Filter by type (using PokeAPI types from pokemon data)
+            if pokemon_type and results:
+                # Load PokeAPI type data
+                import requests
+                filtered = []
+                for p in results:
+                    try:
+                        # Get Pokemon type from PokeAPI
+                        response = requests.get(
+                            f"https://pokeapi.co/api/v2/pokemon/{p['numero']}"
+                        )
+                        if response.status_code == 200:
+                            data = response.json()
+                            types = [t['type']['name'].capitalize() 
+                                   for t in data['types']]
+                            if pokemon_type.capitalize() in types:
+                                filtered.append(p)
+                    except:
+                        pass
+                results = filtered
+            
+            # Filter by price
+            if max_price is not None:
+                results = [p for p in results if p['precio'] <= max_price]
+            
+            # Filter by availability
+            if only_available:
+                results = [p for p in results 
+                          if p.get('enVenta') and 
+                          p['inventario']['disponibles'] > 0]
+            
+            # Limit results
+            results = results[:10]
+            
+            if not results:
+                filters = []
+                if query:
+                    filters.append(f"name '{query}'")
+                if pokemon_type:
+                    filters.append(f"type '{pokemon_type}'")
+                if max_price:
+                    filters.append(f"price ≤ ${max_price}")
+                return f"No Pokemon found matching {', '.join(filters)}"
+            
+            # Format results
+            output = [f"Found {len(results)} Pokemon:\n"]
+            for p in results:
+                status = "✅" if p.get('enVenta') else "❌"
+                stock = p['inventario']['disponibles']
+                output.append(
+                    f"  • {p['nombre'].capitalize()} (#{p['numero']}) - "
+                    f"${p['precio']:.2f} - Stock: {stock} {status}"
+                )
+            
+            return "\n".join(output)
                 
         except Exception as e:
-            return f"Error connecting to merchant: {str(e)}"
+            return f"Error searching catalog: {str(e)}"
     
     def create_shopping_cart(
         self,
@@ -167,6 +223,35 @@ class ShoppingAssistant:
 
 All methods are secured by the AP2 protocol!
 """
+    
+    def view_cart(self) -> str:
+        """
+        View the current shopping cart
+        
+        Returns:
+            Formatted string with cart contents
+        """
+        if not self.current_cart:
+            return "🛒 Your cart is empty. Search for Pokemon to add items!"
+        
+        output = ["🛒 Your Shopping Cart:\n"]
+        output.append(f"Cart ID: {self.current_cart.mandate_id}\n")
+        
+        for item in self.current_cart.items:
+            subtotal = item.unit_price * item.quantity
+            output.append(
+                f"  • {item.item_name} x{item.quantity} - "
+                f"${item.unit_price:.2f} each = ${subtotal:.2f}"
+            )
+        
+        total = sum(
+            item.unit_price * item.quantity
+            for item in self.current_cart.items
+        )
+        output.append(f"\n💰 Total: ${total:.2f} {self.current_cart.currency}")
+        output.append(f"\n✅ Ready to checkout? Just say 'checkout' or 'pay'!")
+        
+        return "\n".join(output)
     
     def checkout(
         self,
@@ -300,6 +385,14 @@ def get_tools():
                     )
                 ),
                 genai.protos.FunctionDeclaration(
+                    name="view_cart",
+                    description="View the current shopping cart contents. Use this when user asks to see their cart, check items, or review their order.",
+                    parameters=genai.protos.Schema(
+                        type=genai.protos.Type.OBJECT,
+                        properties={}
+                    )
+                ),
+                genai.protos.FunctionDeclaration(
                     name="list_payment_methods",
                     description="List available payment methods for checkout",
                     parameters=genai.protos.Schema(
@@ -403,6 +496,8 @@ Be friendly, helpful, and guide them through the shopping process!"""
                         result = assistant.search_pokemon(**function_args)
                     elif function_name == "create_shopping_cart":
                         result = assistant.create_shopping_cart(**function_args)
+                    elif function_name == "view_cart":
+                        result = assistant.view_cart()
                     elif function_name == "list_payment_methods":
                         result = assistant.list_payment_methods()
                     elif function_name == "checkout":

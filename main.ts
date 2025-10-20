@@ -23,11 +23,11 @@ try {
 
 // Tool para consultar el precio de un Pokémon
 server.registerTool(
-    'precio-pokemon',
+    'get_pokemon_price',
     {
-        description: 'Consulta el precio y disponibilidad de un Pokémon de primera generación',
+        description: 'Get price and inventory information for a Pokemon',
         inputSchema: {
-            pokemon: z.string().describe('Nombre o número del Pokémon')
+            pokemon: z.string().describe('Pokemon name or number')
         }
     },
     async (args: any) => {
@@ -45,50 +45,104 @@ server.registerTool(
                 content: [
                     {
                         type: 'text',
-                        text: `No se encontró el Pokémon "${args.pokemon}" en el inventario.`
+                        text: JSON.stringify({ error: `Pokemon "${args.pokemon}" not found` })
                     }
                 ]
             };
         }
 
-        const info = `
-🎮 INFORMACIÓN DE VENTA - Pokémon #${pokemon.numero.toString().padStart(3, '0')}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📛 Nombre: ${pokemon.nombre.charAt(0).toUpperCase() + pokemon.nombre.slice(1)}
-💰 Precio: $${pokemon.precio}
-📊 Estado: ${pokemon.estado.toUpperCase()}
-🏪 En venta: ${pokemon.enVenta ? 'SÍ' : 'NO'}
-
-📦 INVENTARIO:
-   • Total de unidades: ${pokemon.inventario.total}
-   • Disponibles: ${pokemon.inventario.disponibles}
-   • Vendidos: ${pokemon.inventario.vendidos}
-
-${pokemon.inventario.disponibles === 0 ? '⚠️  ¡AGOTADO! No hay unidades disponibles' : 
-  pokemon.inventario.disponibles <= 2 ? '⚠️  ¡ÚLTIMAS UNIDADES! Stock limitado' : 
-  '✅ Disponible para compra'}
-`;
+        // Devolver datos estructurados en JSON
+        const result = {
+            numero: pokemon.numero,
+            nombre: pokemon.nombre,
+            precio: pokemon.precio,
+            enVenta: pokemon.enVenta,
+            estado: pokemon.estado,
+            inventario: {
+                total: pokemon.inventario.total,
+                disponibles: pokemon.inventario.disponibles,
+                vendidos: pokemon.inventario.vendidos
+            }
+        };
 
         return {
             content: [
                 {
                     type: 'text',
-                    text: info
+                    text: JSON.stringify(result)
                 }
             ]
         };
     }
 );
 
-// Tool to fetch Pokemon info by name
+// Tool to search Pokemon by type and price
 server.registerTool(
-    'info-pokemon',
+    'search_pokemon',
     {
-        description: 'Tool to fetch Pokemon info by name',
-
+        description: 'Search Pokemon by type and/or maximum price',
         inputSchema: {
-            pokemon: z.string().describe('Pokemon name')
+            type: z.string().optional().describe('Pokemon type (Fire, Water, Grass, etc.)'),
+            max_price: z.number().optional().describe('Maximum price')
+        }
+    },
+    async (args: any) => {
+        let results = [...pokemonInventory];
+        
+        // Filter by price if specified
+        if (args.max_price !== undefined) {
+            results = results.filter(p => p.precio <= args.max_price);
+        }
+        
+        // If type is specified, we need to check PokeAPI for each Pokemon
+        if (args.type) {
+            const typeFiltered = [];
+            const targetType = String(args.type).toLowerCase();
+            
+            // Get type data from PokeAPI
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/type/${targetType}`);
+                if (response.ok) {
+                    const typeData = await response.json();
+                    const pokemonWithType = typeData.pokemon.map((p: any) => p.pokemon.name);
+                    
+                    // Filter our inventory by pokemon that have this type
+                    results = results.filter(p => pokemonWithType.includes(p.nombre.toLowerCase()));
+                }
+            } catch (error) {
+                console.error('Error fetching type data:', error);
+            }
+        }
+        
+        // Return only available Pokemon
+        const available = results.filter(p => p.enVenta && p.inventario.disponibles > 0);
+        
+        return {
+            content: [
+                {
+                    type: 'text',
+                    text: JSON.stringify({
+                        count: available.length,
+                        results: available.map(p => ({
+                            numero: p.numero,
+                            nombre: p.nombre,
+                            precio: p.precio,
+                            disponibles: p.inventario.disponibles
+                        }))
+                    })
+                }
+            ]
+        };
+    }
+);
+
+// Tool to fetch Pokemon info by name from PokeAPI
+server.registerTool(
+    'get_pokemon_info',
+    {
+        description: 'Get detailed Pokemon information from PokeAPI',
+        inputSchema: {
+            pokemon: z.string().describe('Pokemon name or number')
         }
     },
     async (args: any) => {
@@ -99,7 +153,7 @@ server.registerTool(
                 content: [
                     {
                         type: 'text',
-                        text: `No se encontró información para el pokemon ${pokemon} (status ${response.status})`
+                        text: JSON.stringify({ error: `Pokemon "${pokemon}" not found` })
                     }
                 ]
             };
@@ -107,48 +161,59 @@ server.registerTool(
 
         const data = await response.json();
 
+        // Return simplified info
+        const result = {
+            id: data.id,
+            name: data.name,
+            height: data.height,
+            weight: data.weight,
+            types: data.types.map((t: any) => t.type.name),
+            abilities: data.abilities.map((a: any) => a.ability.name),
+            stats: data.stats.map((s: any) => ({
+                name: s.stat.name,
+                value: s.base_stat
+            }))
+        };
+
         return {
             content: [
                 {
                     type: 'text',
-                    text: JSON.stringify(data, null, 2)
+                    text: JSON.stringify(result)
                 }
             ]
         };
     }
 );
 
-// Tool to list Pokemon by ability
+// Tool to list all available Pokemon types
 server.registerTool(
-    'list-pokemon-type',
+    'list_pokemon_types',
     {
-        description: 'Tool to list Pokemons that have a given type',
-        inputSchema: {
-            type: z.string().describe('Type name')
-        }
+        description: 'List all available Pokemon types',
+        inputSchema: {}
     },
     async (args: any) => {
-        const type = String(args.type ?? '').toLowerCase();
-        // Use the /type/{name} endpoint which lists pokemons with that type
-        const response = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
+        const response = await fetch('https://pokeapi.co/api/v2/type');
         if (!response.ok) {
             return {
                 content: [
                     {
                         type: 'text',
-                        text: `No se encontró la habilidad ${type} (status ${response.status})`
+                        text: JSON.stringify({ error: 'Failed to fetch types' })
                     }
                 ]
             };
         }
 
-        const dataType = await response.json();
+        const data = await response.json();
+        const types = data.results.map((t: any) => t.name);
 
         return {
             content: [
                 {
                     type: 'text',
-                    text: JSON.stringify(dataType, null, 2)
+                    text: JSON.stringify({ types })
                 }
             ]
         };

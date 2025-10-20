@@ -35,6 +35,131 @@ async function fetchPokeAPI(endpoint) {
     }
     return response.json();
 }
+// ========================================
+// AP2 Helper Functions
+// ========================================
+/**
+ * Generate a unique cart ID
+ */
+function generateCartId() {
+    const randomHex = Math.random().toString(16).substring(2, 10);
+    return `cart_pokemon_${randomHex}`;
+}
+/**
+ * Generate a unique order ID
+ */
+function generateOrderId() {
+    const randomHex = Math.random().toString(16).substring(2, 10);
+    return `order_pokemon_${randomHex}`;
+}
+/**
+ * Generate merchant signature for cart
+ */
+function generateMerchantSignature(cartId) {
+    return `sig_merchant_pokemon_${cartId}`;
+}
+/**
+ * Get current ISO timestamp
+ */
+function getCurrentTimestamp() {
+    return new Date().toISOString();
+}
+/**
+ * Create a CartMandate following AP2 protocol
+ */
+async function createCartMandate(items) {
+    const prices = await loadPokemonPrices();
+    const displayItems = [];
+    let totalAmount = 0;
+    // Process each item
+    for (const item of items) {
+        const pokemon = prices.find((p) => p.numero.toString() === item.product_id);
+        if (!pokemon) {
+            throw new Error(`Pokemon #${item.product_id} not found in catalog`);
+        }
+        if (!pokemon.enVenta) {
+            throw new Error(`Pokemon ${pokemon.nombre} is not available for sale`);
+        }
+        if (item.quantity > pokemon.inventario.disponibles) {
+            throw new Error(`Only ${pokemon.inventario.disponibles} ${pokemon.nombre} available, requested ${item.quantity}`);
+        }
+        const itemTotal = pokemon.precio * item.quantity;
+        totalAmount += itemTotal;
+        displayItems.push({
+            label: `${pokemon.nombre.charAt(0).toUpperCase() + pokemon.nombre.slice(1)} (x${item.quantity})`,
+            amount: {
+                currency: "USD",
+                value: itemTotal,
+            },
+        });
+    }
+    // Create CartMandate structure following AP2 specification
+    const cartId = generateCartId();
+    const orderId = generateOrderId();
+    const timestamp = getCurrentTimestamp();
+    const cartMandate = {
+        contents: {
+            id: cartId,
+            user_signature_required: false,
+            payment_request: {
+                method_data: [
+                    {
+                        supported_methods: "CARD",
+                        data: {
+                            payment_processor_url: "http://localhost:8003/a2a/processor",
+                        },
+                    },
+                ],
+                details: {
+                    id: orderId,
+                    displayItems: displayItems,
+                    shipping_options: null,
+                    modifiers: null,
+                    total: {
+                        label: "Total",
+                        amount: {
+                            currency: "USD",
+                            value: totalAmount,
+                        },
+                    },
+                },
+                options: {
+                    requestPayerName: false,
+                    requestPayerEmail: false,
+                    requestPayerPhone: false,
+                    requestShipping: false,
+                    shippingType: null,
+                },
+            },
+        },
+        merchant_signature: generateMerchantSignature(cartId),
+        timestamp: timestamp,
+        merchantName: "PokeMart - Primera Generación",
+    };
+    return cartMandate;
+}
+/**
+ * Format cart mandate for display
+ */
+function formatCartMandateDisplay(cartMandate) {
+    const items = cartMandate.contents.payment_request.details.displayItems;
+    const total = cartMandate.contents.payment_request.details.total.amount.value;
+    let output = "🛒 CARRITO DE COMPRA CREADO\n";
+    output += "━".repeat(50) + "\n\n";
+    output += "📋 Items:\n";
+    items.forEach((item) => {
+        output += `  • ${item.label}: $${item.amount.value}\n`;
+    });
+    output += `\n💰 TOTAL: $${total}\n\n`;
+    output += `🆔 Cart ID: ${cartMandate.contents.id}\n`;
+    output += `📅 Timestamp: ${cartMandate.timestamp}\n\n`;
+    output += "✅ CartMandate listo para el proceso de pago AP2\n\n";
+    output += "📄 CartMandate completo (JSON):\n";
+    output += "```json\n";
+    output += JSON.stringify(cartMandate, null, 2);
+    output += "\n```";
+    return output;
+}
 // Definición de las tools disponibles
 const TOOLS = [
     {
@@ -102,6 +227,49 @@ const TOOLS = [
         inputSchema: {
             type: "object",
             properties: {},
+        },
+    },
+    {
+        name: "create_pokemon_cart",
+        description: "Create a shopping cart (CartMandate) for Pokemon purchase. This follows the AP2 protocol specification. Returns a complete CartMandate with payment request structure ready for AP2 payment processing.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                items: {
+                    type: "array",
+                    description: "List of items to purchase",
+                    items: {
+                        type: "object",
+                        properties: {
+                            product_id: {
+                                type: "string",
+                                description: "Pokemon number (1-151)",
+                            },
+                            quantity: {
+                                type: "integer",
+                                description: "Quantity to purchase",
+                                default: 1,
+                            },
+                        },
+                        required: ["product_id"],
+                    },
+                },
+            },
+            required: ["items"],
+        },
+    },
+    {
+        name: "get_pokemon_product",
+        description: "Get detailed information about a specific Pokemon product by its number. Combines data from PokeAPI and local pricing catalog.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                product_id: {
+                    type: "string",
+                    description: "Pokemon number (1-151)",
+                },
+            },
+            required: ["product_id"],
         },
     },
 ];
@@ -242,6 +410,76 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                                 total: types.length,
                                 types: types,
                             }, null, 2),
+                        },
+                    ],
+                };
+            }
+            case "create_pokemon_cart": {
+                const schema = z.object({
+                    items: z.array(z.object({
+                        product_id: z.string(),
+                        quantity: z.number().int().positive().default(1),
+                    })),
+                });
+                const { items } = schema.parse(args);
+                const cartMandate = await createCartMandate(items);
+                const displayText = formatCartMandateDisplay(cartMandate);
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: displayText,
+                        },
+                    ],
+                };
+            }
+            case "get_pokemon_product": {
+                const schema = z.object({
+                    product_id: z.string(),
+                });
+                const { product_id } = schema.parse(args);
+                // Get price info
+                const prices = await loadPokemonPrices();
+                const priceInfo = prices.find((p) => p.numero.toString() === product_id);
+                if (!priceInfo) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: `Pokemon #${product_id} not found in catalog. Only Gen 1 Pokemon (1-151) are available.`,
+                            },
+                        ],
+                    };
+                }
+                // Get detailed info from PokeAPI
+                let pokeApiInfo = null;
+                try {
+                    pokeApiInfo = await fetchPokeAPI(`pokemon/${product_id}`);
+                }
+                catch (error) {
+                    // If PokeAPI fails, just return price info
+                }
+                const productInfo = {
+                    product_id: product_id,
+                    name: priceInfo.nombre,
+                    price: priceInfo.precio,
+                    currency: "USD",
+                    available: priceInfo.enVenta,
+                    stock: priceInfo.inventario.disponibles,
+                    total_inventory: priceInfo.inventario.total,
+                    sold: priceInfo.inventario.vendidos,
+                    ...(pokeApiInfo && {
+                        types: pokeApiInfo.types.map((t) => t.type.name),
+                        height: pokeApiInfo.height,
+                        weight: pokeApiInfo.weight,
+                        abilities: pokeApiInfo.abilities.map((a) => a.ability.name),
+                    }),
+                };
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: JSON.stringify(productInfo, null, 2),
                         },
                     ],
                 };
