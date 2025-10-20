@@ -1,4 +1,4 @@
-# 🎮 Pokemon MCP + AP2 + ADK Integration# 🎮 Pokemon MCP + AP2 + ADK Integration# 🎮 Pokemon MCP + ADK + AP2 Integration
+# 🎮 Pokemon MCP + AP2 + ADK Integration# 🎮 Pokemon MCP + AP2 + ADK Integration# 🎮 Pokemon MCP + AP2 + ADK Integration# 🎮 Pokemon MCP + ADK + AP2 Integration
 
 
 
@@ -6,431 +6,865 @@ Sistema completo de marketplace de Pokemon que integra tres tecnologías moderna
 
 
 
-- **MCP (Model Context Protocol)**: Servidor unificado TypeScript con herramientas de Pokemon y AP2Sistema completo de marketplace de Pokemon que integra tres protocolos modernos:Proyecto completo que integra tres tecnologías clave para agentes de IA:
+- **MCP (Model Context Protocol)**: Servidor unificado TypeScript con herramientas de Pokemon y AP2Sistema completo de marketplace de Pokemon que integra tres tecnologías modernas para agentes de IA:
 
 - **AP2 (Agent Payments Protocol)**: Sistema de pagos seguro entre agentes  
 
-- **Google ADK (Agent Development Kit)**: Agentes conversacionales con Gemini 2.5 Flash- **MCP** (Model Context Protocol) - Gestión de catálogo- **MCP (Model Context Protocol)**: Servidor con herramientas de Pokemon
+- **Google ADK (Agent Development Kit)**: Agentes conversacionales con Gemini 2.5 Flash
 
 
 
-## 🏗️ Arquitectura- **AP2** (Agent Payments Protocol) - Procesamiento de pagos- **Google ADK (Agent Development Kit)**: Agente con Gemini 2.5
+## 🏗️ Arquitectura- **MCP (Model Context Protocol)**: Servidor unificado TypeScript con herramientas de Pokemon y AP2Sistema completo de marketplace de Pokemon que integra tres protocolos modernos:Proyecto completo que integra tres tecnologías clave para agentes de IA:
 
 
 
-```- **ADK** (Agent Development Kit) - Agente conversacional con Gemini- **AP2 (Agent Payments Protocol)**: Sistema de pagos seguro entre agentes
+```- **AP2 (Agent Payments Protocol)**: Sistema de pagos seguro entre agentes  
 
 ┌─────────────────────────────────────────────────────────────────┐
 
-│                         Usuario                                  │
+│                         Usuario                                  │- **Google ADK (Agent Development Kit)**: Agentes conversacionales con Gemini 2.5 Flash- **MCP** (Model Context Protocol) - Gestión de catálogo- **MCP (Model Context Protocol)**: Servidor con herramientas de Pokemon
 
 └────────────┬────────────────────────────────────────────────────┘
 
-             │## 🏗️ Arquitectura## 🏗️ Arquitectura General
+             │
 
              ▼
 
-┌─────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────┐## 🏗️ Arquitectura- **AP2** (Agent Payments Protocol) - Procesamiento de pagos- **Google ADK (Agent Development Kit)**: Agente con Gemini 2.5
 
 │                    Shopping Agent (AP2)                          │
 
-│                  Puerto 8000 - Google ADK                        │``````
+│                  Puerto 8000 - Google ADK                        │
 
 │  - Asistente de compras                                          │
 
-│  - Usa Gemini 2.5 Flash                                          │┌─────────────────────────────────────────────────────────────┐┌─────────────────────────────────────────────────────────────────┐
+│  - Usa Gemini 2.5 Flash                                          │```- **ADK** (Agent Development Kit) - Agente conversacional con Gemini- **AP2 (Agent Payments Protocol)**: Sistema de pagos seguro entre agentes
 
 │  - Protocolo AP2 para pagos                                      │
 
-└────────────┬──────────────────────────────────┬─────────────────┘│                   USUARIO / CLIENTE                          ││                         Usuario                                  │
+└────────────┬──────────────────────────────────┬─────────────────┘┌─────────────────────────────────────────────────────────────────┐
 
              │                                   │
 
-             │ Tools MCP                         │ AP2 Protocol└─────────────────────────────────────────────────────────────┘└────────────┬────────────────────────────────────────────────────┘
+             │ Tools MCP                         │ AP2 Protocol│                         Usuario                                  │
 
              ▼                                   ▼
 
-┌──────────────────────┐           ┌──────────────────────────────┐                          │             │
+┌──────────────────────┐           ┌──────────────────────────────┐└────────────┬────────────────────────────────────────────────────┘
 
 │ MCP Pokemon Server   │           │   Merchant Agent (AP2)       │
 
-│ Node.js/TypeScript   │           │      Puerto 8001             │                          ▼             ▼
+│ Node.js/TypeScript   │           │      Puerto 8001             │             │## 🏗️ Arquitectura## 🏗️ Arquitectura General
 
 │                      │           │  - Gestión de catálogo       │
 
-│  Tools:              │           │  - Procesamiento de pagos    │┌─────────────────────────────────────────────────────────────┐┌─────────────────────────────────────────────────────────────────┐
+│  Tools:              │           │  - Procesamiento de pagos    │             ▼
 
 │  • get_pokemon_info  │           │  - CartMandates              │
 
-│  • get_pokemon_price │           │  - PaymentMandates           ││           SHOPPING AGENT (Gemini + Python)                   ││                    Shopping Agent (AP2)                          │
+│  • get_pokemon_price │           │  - PaymentMandates           │┌─────────────────────────────────────────────────────────────────┐
 
 │  • search_pokemon    │           └──────────────┬───────────────┘
 
-│  • list_types        │                          ││  Puerto: Terminal interactiva                                ││                  Puerto 8000 - Google ADK                        │
+│  • list_types        │                          ││                    Shopping Agent (AP2)                          │
 
 │  • create_cart (AP2) │                          │
 
-│  • get_product (AP2) │                          ││  Rol: Interfaz conversacional y coordinación                 ││  - Asistente de compras                                          │
+│  • get_product (AP2) │                          ││                  Puerto 8000 - Google ADK                        │``````
 
 └──────┬───────────────┘                          │
 
-       │                                          │└─────────────────────────────────────────────────────────────┘│  - Usa Gemini 2.5 Flash                                          │
+       │                                          ││  - Asistente de compras                                          │
 
        │ APIs                                     │ Data
 
-       ▼                                          ▼           │                              ││  - Protocolo AP2 para pagos                                      │
+       ▼                                          ▼│  - Usa Gemini 2.5 Flash                                          │┌─────────────────────────────────────────────────────────────┐┌─────────────────────────────────────────────────────────────────┐
 
 ┌────────────────┐                    ┌─────────────────────────┐
 
-│    PokeAPI     │                    │  pokemon-gen1.json      │           │ Búsqueda                     │ Pagos/Carritos└────────────┬──────────────────────────────────┬─────────────────┘
+│    PokeAPI     │                    │  pokemon-gen1.json      ││  - Protocolo AP2 para pagos                                      │
 
 │ pokeapi.co/api │                    │  (Catálogo de precios)  │
 
-└────────────────┘                    └─────────────────────────┘           ▼                              ▼             │                                   │
+└────────────────┘                    └─────────────────────────┘└────────────┬──────────────────────────────────┬─────────────────┘│                   USUARIO / CLIENTE                          ││                         Usuario                                  │
 
 ```
 
-┌──────────────────────────┐   ┌──────────────────────────────┐             │ Tools MCP                         │ AP2 Protocol
+             │                                   │
 
 ## ✨ Características Principales
 
-│    MCP SERVER            │   │   MERCHANT AGENT (AP2)       │             ▼                                   ▼
+             │ Tools MCP                         │ AP2 Protocol└─────────────────────────────────────────────────────────────┘└────────────┬────────────────────────────────────────────────────┘
 
 ### 🔄 Servidor MCP Unificado
 
-- **Un solo servidor** en lugar de dos separados│    (TypeScript)          │◄──│   (FastAPI/Python)           │┌──────────────────────┐           ┌──────────────────────────────┐
+- **Un solo servidor** en lugar de dos separados             ▼                                   ▼
 
 - Combina catálogo de Pokemon + funcionalidades de merchant AP2
 
-- Mejor rendimiento (60% más rápido)│  Puerto: stdio           │   │   Puerto: 8001               ││   MCP Pokemon Server │           │     Merchant Agent (AP2)     │
+- Mejor rendimiento (60% más rápido)┌──────────────────────┐           ┌──────────────────────────────┐                          │             │
 
 - Menor uso de recursos (47% menos memoria)
 
-- Configuración simplificada│                          │   │                              ││   Node.js/TypeScript │           │      Puerto 8001             │
+- Configuración simplificada│ MCP Pokemon Server   │           │   Merchant Agent (AP2)       │
 
 
 
-### 💳 Protocolo AP2 Completo│  📚 Gestión de Catálogo  │   │  💳 Transacciones            ││                      │           │   - Gestión de catálogo      │
+### 💳 Protocolo AP2 Completo│ Node.js/TypeScript   │           │      Puerto 8001             │                          ▼             ▼
 
 - **CartMandates**: Autorización explícita de carritos
 
-- **PaymentMandates**: Autorización de pagos con método│  • get_pokemon_info      │   │  • POST /cart/create         ││  Tools:              │           │   - Procesamiento de pagos   │
+- **PaymentMandates**: Autorización de pagos con método│                      │           │  - Gestión de catálogo       │
 
 - **Merchant Signatures**: Firmas digitales automáticas
 
-- **Payment Requests**: Estructuras completas de pago│  • get_pokemon_price     │   │    └─► Usa MCP Client        ││  • get_pokemon_info  │           │   - CartMandates             │
+- **Payment Requests**: Estructuras completas de pago│  Tools:              │           │  - Procesamiento de pagos    │┌─────────────────────────────────────────────────────────────┐┌─────────────────────────────────────────────────────────────────┐
 
 - Compatible con shopping agents AP2
 
-│  • search_pokemon        │   │  • POST /payment/process     ││  • get_pokemon_price │           │   - PaymentMandates          │
+│  • get_pokemon_info  │           │  - CartMandates              │
 
 ### 🤖 Agentes Inteligentes
 
-- **Shopping Agent**: Asistente conversacional con Gemini│  • list_pokemon_types    │   │  • GET /.well-known/...      ││  • search_pokemon    │           └──────────────┬───────────────┘
+- **Shopping Agent**: Asistente conversacional con Gemini│  • get_pokemon_price │           │  - PaymentMandates           ││           SHOPPING AGENT (Gemini + Python)                   ││                    Shopping Agent (AP2)                          │
 
 - **Merchant Agent**: Gestión de catálogo y transacciones
 
-- Coordinación automática entre agentes└──────────────────────────┘   └──────────────────────────────┘│  • list_types        │                          │
+- Coordinación automática entre agentes│  • search_pokemon    │           └──────────────┬───────────────┘
 
 - Flujo de compra natural en lenguaje humano
 
-           │                              │└──────┬───────────────┘                          │
+│  • list_types        │                          ││  Puerto: Terminal interactiva                                ││                  Puerto 8000 - Google ADK                        │
 
 ## 📦 Componentes
 
-           └──────────────┬───────────────┘       │                                          │
+│  • create_cart (AP2) │                          │
 
 ### 1. MCP Server Unificado (`mcp-server/`)
 
-                          ▼       │ APIs                                     │ Data
+│  • get_product (AP2) │                          ││  Rol: Interfaz conversacional y coordinación                 ││  - Asistente de compras                                          │
 
 Servidor TypeScript que combina catálogo + merchant AP2.
 
-                  ┌────────────────┐       ▼                                          ▼
+└──────┬───────────────┘                          │
 
 **Tecnologías**: TypeScript, Node.js, @modelcontextprotocol/sdk
 
-                  │  Pokemon Data  │┌────────────────┐                    ┌─────────────────────────┐
+       │                                          │└─────────────────────────────────────────────────────────────┘│  - Usa Gemini 2.5 Flash                                          │
 
 **Tools disponibles**:
 
-- `get_pokemon_info` - Info detallada desde PokeAPI                  │pokemon-gen1.json││    PokeAPI     │                    │  pokemon-gen1.json      │
+- `get_pokemon_info` - Info detallada desde PokeAPI       │ APIs                                     │ Data
 
 - `get_pokemon_price` - Precios del catálogo local
 
-- `search_pokemon` - Búsqueda con filtros avanzados                  │  (151 Pokemon) ││ pokeapi.co/api │                    │  (Catálogo de precios)  │
+- `search_pokemon` - Búsqueda con filtros avanzados       ▼                                          ▼           │                              ││  - Protocolo AP2 para pagos                                      │
 
 - `list_pokemon_types` - Tipos disponibles
 
-- `create_pokemon_cart` - ⭐ Crear CartMandates AP2                  └────────────────┘└────────────────┘                    └─────────────────────────┘
+- `create_pokemon_cart` - ⭐ Crear CartMandates AP2┌────────────────┐                    ┌─────────────────────────┐
 
 - `get_pokemon_product` - ⭐ Info completa de producto
 
-``````
+│    PokeAPI     │                    │  pokemon-gen1.json      │           │ Búsqueda                     │ Pagos/Carritos└────────────┬──────────────────────────────────┬─────────────────┘
 
 📖 **[Ver documentación completa →](mcp-server/README.md)**
 
-
+│ pokeapi.co/api │                    │  (Catálogo de precios)  │
 
 ### 2. Shopping Agent (`adk-agent/`)
 
-## 📦 Componentes## 📦 Componentes del Proyecto
+└────────────────┘                    └─────────────────────────┘           ▼                              ▼             │                                   │
 
 Agente conversacional básico con Google ADK.
 
-
+```
 
 **Tecnologías**: Python, Google ADK, Gemini 2.5 Flash
 
-### 1. MCP Server### 1. MCP Server (`mcp-server/`)
+┌──────────────────────────┐   ┌──────────────────────────────┐             │ Tools MCP                         │ AP2 Protocol
 
 **Funcionalidades**:
 
-- Conversación natural sobre Pokemon**Ubicación**: `mcp-server/`  Servidor del Model Context Protocol que expone herramientas para trabajar con Pokemon.
+- Conversación natural sobre Pokemon## ✨ Características Principales
 
 - Acceso a información de PokeAPI
 
-- Consulta de precios e inventario**Tecnología**: TypeScript + Node.js  
+- Consulta de precios e inventario│    MCP SERVER            │   │   MERCHANT AGENT (AP2)       │             ▼                                   ▼
 
 
 
-📖 **[Ver documentación completa →](adk-agent/README.md)****Puerto**: stdio (proceso subordinado)**Tecnologías**: TypeScript, Node.js, @modelcontextprotocol/sdk
+📖 **[Ver documentación completa →](adk-agent/README.md)**### 🔄 Servidor MCP Unificado
 
 
 
-### 3. AP2 Integration (`ap2-integration/`)
+### 3. AP2 Integration (`ap2-integration/`)- **Un solo servidor** en lugar de dos separados│    (TypeScript)          │◄──│   (FastAPI/Python)           │┌──────────────────────┐           ┌──────────────────────────────┐
 
 
 
-Implementación completa del protocolo AP2.Servidor MCP que expone herramientas para consultar el catálogo de Pokemon.**Herramientas disponibles**:
+Implementación completa del protocolo AP2.- Combina catálogo de Pokemon + funcionalidades de merchant AP2
 
 
 
-**Tecnologías**: Python, FastAPI, Google ADK, AP2- `get_pokemon_info`: Información desde PokeAPI
+**Tecnologías**: Python, FastAPI, Google ADK, AP2- Mejor rendimiento (60% más rápido)│  Puerto: stdio           │   │   Puerto: 8001               ││   MCP Pokemon Server │           │     Merchant Agent (AP2)     │
 
 
 
-**Agentes**:🔗 **[Ver documentación completa →](mcp-server/README.md)**- `get_pokemon_price`: Precios del catálogo local
+**Agentes**:- Menor uso de recursos (47% menos memoria)
 
 - **Shopping Agent**: Asistente personal de compras (Puerto 8000)
 
-- **Merchant Agent**: Gestión del marketplace (Puerto 8001)- `search_pokemon`: Búsqueda combinada
+- **Merchant Agent**: Gestión del marketplace (Puerto 8001)- Configuración simplificada│                          │   │                              ││   Node.js/TypeScript │           │      Puerto 8001             │
 
 
 
-📖 **[Ver documentación completa →](ap2-integration/README.md)****Herramientas**:- `list_pokemon_types`: Lista de tipos disponibles
+📖 **[Ver documentación completa →](ap2-integration/README.md)**
 
 
 
-## 🚀 Instalación Rápida- `get_pokemon_info` - Información detallada de un Pokemon
+## 🚀 Instalación Rápida### 💳 Protocolo AP2 Completo│  📚 Gestión de Catálogo  │   │  💳 Transacciones            ││                      │           │   - Gestión de catálogo      │
 
 
 
-### Requisitos Previos- `get_pokemon_price` - Precio e inventario### 2. ADK Agent (`adk-agent/`)
+### Requisitos Previos- **CartMandates**: Autorización explícita de carritos
 
 
 
-- **Node.js** 18+ y npm- `search_pokemon` - Búsqueda con filtrosAgente básico usando Google ADK con integración de herramientas MCP.
+- **Node.js** 18+ y npm- **PaymentMandates**: Autorización de pagos con método│  • get_pokemon_info      │   │  • POST /cart/create         ││  Tools:              │           │   - Procesamiento de pagos   │
 
 - **Python** 3.10+
 
-- **uv** package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)- `list_pokemon_types` - Lista de tipos disponibles
+- **uv** package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)- **Merchant Signatures**: Firmas digitales automáticas
 
 - **Google API Key** de [AI Studio](https://aistudio.google.com/apikey)
 
-**Tecnologías**: Python, Google ADK, Gemini 2.5
+- **Payment Requests**: Estructuras completas de pago│  • get_pokemon_price     │   │    └─► Usa MCP Client        ││  • get_pokemon_info  │           │   - CartMandates             │
 
 ### Pasos de Instalación
 
-### 2. AP2 Merchant Agent
+- Compatible con shopping agents AP2
 
 ```bash
 
-# 1. Clonar o navegar al proyecto**Ubicación**: `ap2-integration/`  **Funcionalidades**:
+# 1. Clonar o navegar al proyecto│  • search_pokemon        │   │  • POST /payment/process     ││  • get_pokemon_price │           │   - PaymentMandates          │
 
 cd prueba-mcp-a2a-ap2
 
-**Tecnología**: Python + FastAPI  - Conversación natural sobre Pokemon
+### 🤖 Agentes Inteligentes
 
 # 2. Instalar MCP Server
 
-cd mcp-server**Puerto**: 8001- Acceso a información de PokeAPI
+cd mcp-server- **Shopping Agent**: Asistente conversacional con Gemini│  • list_pokemon_types    │   │  • GET /.well-known/...      ││  • search_pokemon    │           └──────────────┬───────────────┘
 
 npm install
 
-npm run build- Consulta de precios e inventario
+npm run build- **Merchant Agent**: Gestión de catálogo y transacciones
 
 cd ..
 
-Agente merchant que implementa el protocolo AP2 para gestión de carritos y pagos.
+- Coordinación automática entre agentes└──────────────────────────┘   └──────────────────────────────┘│  • list_types        │                          │
 
 # 3. Instalar ADK Agent
 
-cd adk-agent### 3. AP2 Integration (`ap2-integration/`)
+cd adk-agent- Flujo de compra natural en lenguaje humano
 
 uv pip install google-adk python-dotenv
 
-cd ..🔗 **[Ver documentación completa →](ap2-integration/README.md)**Implementación completa del protocolo AP2 para comercio entre agentes.
+cd ..           │                              │└──────┬───────────────┘                          │
 
 
 
-# 4. Instalar AP2 Integration
+# 4. Instalar AP2 Integration## 📦 Componentes
 
 cd ap2-integration
 
-uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests**Endpoints**:**Tecnologías**: Python, FastAPI, Google ADK, AP2 Protocol
+uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests           └──────────────┬───────────────┘       │                                          │
 
 cd ..
 
-- `POST /cart/create` - Crear CartMandate
+### 1. MCP Server Unificado (`mcp-server/`)
 
 # 5. Configurar API Keys
 
-# Crea archivos .env en adk-agent/ y ap2-integration/- `POST /payment/process` - Procesar PaymentMandate**Agentes**:
+echo "GOOGLE_API_KEY=tu_api_key_aqui" > adk-agent/.env                          ▼       │ APIs                                     │ Data
 
-echo "GOOGLE_API_KEY=tu_api_key_aqui" > adk-agent/.env
+echo "GOOGLE_API_KEY=tu_api_key_aqui" > ap2-integration/.env
 
-echo "GOOGLE_API_KEY=tu_api_key_aqui" > ap2-integration/.env- `GET /.well-known/agent-card.json` - Agent Card (A2A)- **Shopping Agent**: Asistente personal de compras
+```Servidor TypeScript que combina catálogo + merchant AP2.
 
-```
 
-- **Merchant Agent**: Gestión del marketplace
 
-## 🎮 Uso
+## 🎮 Uso                  ┌────────────────┐       ▼                                          ▼
 
-### 3. Shopping Agent (ADK)
 
-### Escenario 1: Agente Simple con MCP
 
-**Ubicación**: `ap2-integration/src/roles/`  ## 🚀 Instalación Rápida
+### Escenario 1: Agente Simple con MCP**Tecnologías**: TypeScript, Node.js, @modelcontextprotocol/sdk
 
-Usar el agente ADK básico para consultar información de Pokemon.
 
-**Tecnología**: Python + Google Generative AI (Gemini)  
 
-```bash
+Usar el agente ADK básico para consultar información de Pokemon.                  │  Pokemon Data  │┌────────────────┐                    ┌─────────────────────────┐
 
-# Terminal 1: Asegúrate de que el MCP server esté compilado**Puerto**: Terminal interactiva### Requisitos Previos
 
-cd mcp-server
+
+```bash**Tools disponibles**:
+
+# Terminal 1: Asegúrate de que el MCP server esté compilado
+
+cd mcp-server- `get_pokemon_info` - Info detallada desde PokeAPI                  │pokemon-gen1.json││    PokeAPI     │                    │  pokemon-gen1.json      │
 
 npm run build
 
+- `get_pokemon_price` - Precios del catálogo local
+
+# Terminal 2: Ejecutar agente ADK
+
+cd adk-agent- `search_pokemon` - Búsqueda con filtros avanzados                  │  (151 Pokemon) ││ pokeapi.co/api │                    │  (Catálogo de precios)  │
+
+python pokemon_agent.py
+
+```- `list_pokemon_types` - Tipos disponibles
 
 
-# Terminal 2: Ejecutar agente ADKAsistente conversacional que coordina búsquedas y compras.- **Node.js** 18+ y npm
 
-cd adk-agent
-
-python pokemon_agent.py- **Python** 3.10+
+**Ejemplo de interacción**:- `create_pokemon_cart` - ⭐ Crear CartMandates AP2                  └────────────────┘└────────────────┘                    └─────────────────────────┘
 
 ```
 
-🔗 **[Ver documentación completa →](adk-agent/README.md)**- **uv** package manager
+Tú: ¿Qué información tienes sobre Pikachu?- `get_pokemon_product` - ⭐ Info completa de producto
 
-**Ejemplo de interacción**:
+🤖: Pikachu es un Pokemon de tipo eléctrico...
 
-```- **Google API Key** de [AI Studio](https://aistudio.google.com/apikey)
+``````
 
-Tú: ¿Qué información tienes sobre Pikachu?
+Tú: ¿Cuánto cuesta Charizard?
 
-🤖: Pikachu es un Pokemon de tipo eléctrico...**Capacidades**:
+🤖: Charizard tiene un precio de $51 USD y hay 5 disponibles...📖 **[Ver documentación completa →](mcp-server/README.md)**
 
-
-
-Tú: ¿Cuánto cuesta Charizard?- Búsqueda de Pokemon por nombre/tipo### Instalación
-
-🤖: Charizard tiene un precio de $51 USD y hay 5 disponibles...
-
-```- Creación de carritos
+```
 
 
 
-### Escenario 2: Marketplace Completo con AP2- Procesamiento de pagos```bash
+### Escenario 2: Marketplace Completo con AP2
 
+### 2. Shopping Agent (`adk-agent/`)
 
+Demostración del protocolo AP2 con compra completa.
 
-Demostración del protocolo AP2 con compra completa.- Vista de carrito actual# 1. Clonar/navegar al proyecto
+## 📦 Componentes## 📦 Componentes del Proyecto
 
+```bash
 
+# Terminal 1: Merchant AgentAgente conversacional básico con Google ADK.
 
-```bashcd prueba-mcp-a2a-ap2
-
-# Terminal 1: Merchant Agent
-
-cd ap2-integration## 🚀 Inicio Rápido
+cd ap2-integration
 
 python -m src.roles.merchant_agent
 
-# 2. Instalar MCP Server
-
-# Terminal 2: Shopping Agent
-
-cd ap2-integration### Prerequisitoscd mcp-server
-
-python -m src.roles.shopping_agent
-
-```npm install
 
 
+# Terminal 2: Shopping Agent**Tecnologías**: Python, Google ADK, Gemini 2.5 Flash
 
-**Flujo de compra**:```bashnpm run build
+cd ap2-integration
+
+python -m src.roles.shopping_agent### 1. MCP Server### 1. MCP Server (`mcp-server/`)
 
 ```
 
-You: I want to buy a Pikachu# Node.js 20+ para MCP Servercd ..
+**Funcionalidades**:
 
-🤖: I found Pikachu! It costs $250 USD...
+**Flujo de compra**:
 
-node --version
+```- Conversación natural sobre Pokemon**Ubicación**: `mcp-server/`  Servidor del Model Context Protocol que expone herramientas para trabajar con Pokemon.
 
-You: Add it to my cart
+You: I want to buy a Pikachu
 
-🤖: 🛒 Cart created with Pikachu...# 3. Instalar ADK Agent
-
-
-
-You: Checkout# Python 3.10+ para AP2 y Shopping Agentcd adk-agent
-
-🤖: ✅ Payment successful! Transaction ID: txn_...
-
-```python3 --versionuv pip install google-adk python-dotenv
+🤖: I found Pikachu! It costs $250 USD...- Acceso a información de PokeAPI
 
 
 
-### Escenario 3: GitHub Copilot / Claude Desktopcd ..
+You: Add it to my cart- Consulta de precios e inventario**Tecnología**: TypeScript + Node.js  
+
+🤖: 🛒 Cart created with Pikachu...
 
 
 
-Usar el servidor MCP desde tu editor o Claude Desktop.# Dependencias de Python
+You: Checkout
+
+🤖: ✅ Payment successful! Transaction ID: txn_...📖 **[Ver documentación completa →](adk-agent/README.md)****Puerto**: stdio (proceso subordinado)**Tecnologías**: TypeScript, Node.js, @modelcontextprotocol/sdk
+
+```
 
 
 
-1. El archivo `.vscode/mcp.json` ya está configuradopip install --user google-generativeai fastapi uvicorn pydantic python-dotenv requests# 4. Instalar AP2 Integration
+### Escenario 3: GitHub Copilot / Claude Desktop
 
-2. Reinicia GitHub Copilot: `Ctrl+Shift+P` → "GitHub Copilot: Restart Chat"
+### 3. AP2 Integration (`ap2-integration/`)
 
-3. Pregunta en lenguaje natural:```cd ap2-integration
+Usar el servidor MCP desde tu editor o Claude Desktop.
 
 
 
-```uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests
+1. El archivo `.vscode/mcp.json` ya está configurado
 
-"Busca pokemon de tipo fire por menos de 100 USD"
+2. Reinicia GitHub Copilot: `Ctrl+Shift+P` → "GitHub Copilot: Restart Chat"Implementación completa del protocolo AP2.Servidor MCP que expone herramientas para consultar el catálogo de Pokemon.**Herramientas disponibles**:
 
-"Añade 2 Charizard y 1 Gyarados al carrito"### Configuracióncd ..
+3. Pregunta en lenguaje natural:
+
+
+
+```
+
+"Busca pokemon de tipo fire por menos de 100 USD"**Tecnologías**: Python, FastAPI, Google ADK, AP2- `get_pokemon_info`: Información desde PokeAPI
+
+"Añade 2 Charizard y 1 Gyarados al carrito"
 
 "Muéstrame el carrito con el CartMandate completo"
 
 ```
 
+**Agentes**:🔗 **[Ver documentación completa →](mcp-server/README.md)**- `get_pokemon_price`: Precios del catálogo local
 
+## 🧪 Testing
+
+- **Shopping Agent**: Asistente personal de compras (Puerto 8000)
+
+Ver documentación completa de tests en [`tests/README.md`](tests/README.md)
+
+- **Merchant Agent**: Gestión del marketplace (Puerto 8001)- `search_pokemon`: Búsqueda combinada
+
+### Ejecutar Tests
+
+
+
+```bash
+
+# Test completo MCP📖 **[Ver documentación completa →](ap2-integration/README.md)****Herramientas**:- `list_pokemon_types`: Lista de tipos disponibles
+
+python tests/test_mcp.py
+
+
+
+# Test simple MCP
+
+python tests/test_mcp_simple.py## 🚀 Instalación Rápida- `get_pokemon_info` - Información detallada de un Pokemon
+
+
+
+# Test del servidor unificado
+
+./tests/test_unified_mcp.sh
+
+```### Requisitos Previos- `get_pokemon_price` - Precio e inventario### 2. ADK Agent (`adk-agent/`)
+
+
+
+## 💳 Protocolo AP2
+
+
+
+### CartMandate- **Node.js** 18+ y npm- `search_pokemon` - Búsqueda con filtrosAgente básico usando Google ADK con integración de herramientas MCP.
+
+
+
+El servidor genera automáticamente CartMandates siguiendo la especificación AP2:- **Python** 3.10+
+
+
+
+```json- **uv** package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)- `list_pokemon_types` - Lista de tipos disponibles
+
+{
+
+  "contents": {- **Google API Key** de [AI Studio](https://aistudio.google.com/apikey)
+
+    "id": "cart_pokemon_a1b2c3d4",
+
+    "user_signature_required": false,**Tecnologías**: Python, Google ADK, Gemini 2.5
+
+    "payment_request": {
+
+      "method_data": [{### Pasos de Instalación
+
+        "supported_methods": "CARD",
+
+        "data": {### 2. AP2 Merchant Agent
+
+          "payment_processor_url": "http://localhost:8003/a2a/processor"
+
+        }```bash
+
+      }],
+
+      "details": {# 1. Clonar o navegar al proyecto**Ubicación**: `ap2-integration/`  **Funcionalidades**:
+
+        "id": "order_pokemon_x1y2z3w4",
+
+        "displayItems": [cd prueba-mcp-a2a-ap2
+
+          {
+
+            "label": "Charizard (x2)",**Tecnología**: Python + FastAPI  - Conversación natural sobre Pokemon
+
+            "amount": { "currency": "USD", "value": 102 }
+
+          }# 2. Instalar MCP Server
+
+        ],
+
+        "total": {cd mcp-server**Puerto**: 8001- Acceso a información de PokeAPI
+
+          "label": "Total",
+
+          "amount": { "currency": "USD", "value": 102 }npm install
+
+        }
+
+      }npm run build- Consulta de precios e inventario
+
+    }
+
+  },cd ..
+
+  "merchant_signature": "sig_merchant_pokemon_...",
+
+  "timestamp": "2025-10-20T12:00:00.000Z",Agente merchant que implementa el protocolo AP2 para gestión de carritos y pagos.
+
+  "merchantName": "PokeMart - Primera Generación"
+
+}# 3. Instalar ADK Agent
+
+```
+
+cd adk-agent### 3. AP2 Integration (`ap2-integration/`)
+
+## 📖 Documentación Detallada
+
+uv pip install google-adk python-dotenv
+
+Cada componente tiene su propio README con documentación completa:
+
+cd ..🔗 **[Ver documentación completa →](ap2-integration/README.md)**Implementación completa del protocolo AP2 para comercio entre agentes.
+
+- **MCP Server**: [`mcp-server/README.md`](mcp-server/README.md)
+
+- **ADK Agent**: [`adk-agent/README.md`](adk-agent/README.md)
+
+- **AP2 Integration**: [`ap2-integration/README.md`](ap2-integration/README.md)
+
+- **Tests**: [`tests/README.md`](tests/README.md)# 4. Instalar AP2 Integration
+
+
+
+## 🗂️ Estructura del Proyectocd ap2-integration
+
+
+
+```uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests**Endpoints**:**Tecnologías**: Python, FastAPI, Google ADK, AP2 Protocol
+
+prueba-mcp-a2a-ap2/
+
+├── README.md                          # Este archivocd ..
+
+├── pokemon-gen1.json                  # Catálogo (151 Pokemon)
+
+├── .gitignore                         # Archivos ignorados- `POST /cart/create` - Crear CartMandate
+
+├── .vscode/
+
+│   └── mcp.json                       # Configuración MCP# 5. Configurar API Keys
+
+│
+
+├── tests/                             # Scripts de prueba# Crea archivos .env en adk-agent/ y ap2-integration/- `POST /payment/process` - Procesar PaymentMandate**Agentes**:
+
+│   ├── README.md                      # Documentación de tests
+
+│   ├── test_mcp.py                    # Test completo MCPecho "GOOGLE_API_KEY=tu_api_key_aqui" > adk-agent/.env
+
+│   ├── test_mcp_simple.py             # Test simple MCP
+
+│   └── test_unified_mcp.sh            # Script de test bashecho "GOOGLE_API_KEY=tu_api_key_aqui" > ap2-integration/.env- `GET /.well-known/agent-card.json` - Agent Card (A2A)- **Shopping Agent**: Asistente personal de compras
+
+│
+
+├── mcp-server/                        # Servidor MCP Unificado```
+
+│   ├── README.md
+
+│   ├── src/- **Merchant Agent**: Gestión del marketplace
+
+│   │   └── index.ts                   # Servidor + AP2
+
+│   ├── build/                         # Compilado## 🎮 Uso
+
+│   ├── package.json
+
+│   └── tsconfig.json### 3. Shopping Agent (ADK)
+
+│
+
+├── adk-agent/                         # Agente ADK básico### Escenario 1: Agente Simple con MCP
+
+│   ├── README.md
+
+│   ├── pokemon_agent.py**Ubicación**: `ap2-integration/src/roles/`  ## 🚀 Instalación Rápida
+
+│   ├── pyproject.toml
+
+│   └── .env.exampleUsar el agente ADK básico para consultar información de Pokemon.
+
+│
+
+└── ap2-integration/                   # Integración AP2**Tecnología**: Python + Google Generative AI (Gemini)  
+
+    ├── README.md
+
+    ├── .env.example```bash
+
+    ├── src/
+
+    │   ├── common/                    # Utilidades# Terminal 1: Asegúrate de que el MCP server esté compilado**Puerto**: Terminal interactiva### Requisitos Previos
+
+    │   │   ├── pokemon_utils.py
+
+    │   │   ├── ap2_types.pycd mcp-server
+
+    │   │   └── mcp_client.py
+
+    │   └── roles/                     # Agentesnpm run build
+
+    │       ├── merchant_agent.py
+
+    │       └── shopping_agent.py
+
+    └── pyproject.toml
+
+```# Terminal 2: Ejecutar agente ADKAsistente conversacional que coordina búsquedas y compras.- **Node.js** 18+ y npm
+
+
+
+## 🔑 Configuración de API Keyscd adk-agent
+
+
+
+### Obtener Google API Keypython pokemon_agent.py- **Python** 3.10+
+
+
+
+1. Visita [Google AI Studio](https://aistudio.google.com/apikey)```
+
+2. Crea una nueva API Key
+
+3. Copia la clave🔗 **[Ver documentación completa →](adk-agent/README.md)**- **uv** package manager
+
+
+
+### Configurar en el Proyecto**Ejemplo de interacción**:
+
+
+
+**Para adk-agent**:```- **Google API Key** de [AI Studio](https://aistudio.google.com/apikey)
+
+```bash
+
+cd adk-agentTú: ¿Qué información tienes sobre Pikachu?
+
+cp .env.example .env
+
+# Edita .env y añade: GOOGLE_API_KEY=tu_key🤖: Pikachu es un Pokemon de tipo eléctrico...**Capacidades**:
+
+```
+
+
+
+**Para ap2-integration**:
+
+```bashTú: ¿Cuánto cuesta Charizard?- Búsqueda de Pokemon por nombre/tipo### Instalación
+
+cd ap2-integration
+
+cp .env.example .env🤖: Charizard tiene un precio de $51 USD y hay 5 disponibles...
+
+# Edita .env y añade: GOOGLE_API_KEY=tu_key
+
+``````- Creación de carritos
+
+
+
+## 📊 Mejoras vs Arquitectura Anterior
+
+
+
+| Métrica | Antes | Ahora | Mejora |### Escenario 2: Marketplace Completo con AP2- Procesamiento de pagos```bash
+
+|---------|-------|-------|--------|
+
+| Servidores MCP | 2 (TS + Python) | 1 (TS) | 50% menos |
+
+| Lenguajes | TypeScript + Python | Solo TypeScript | Unificado |
+
+| Memoria | ~150MB | ~80MB | 47% menos |Demostración del protocolo AP2 con compra completa.- Vista de carrito actual# 1. Clonar/navegar al proyecto
+
+| Velocidad inicio | ~5s | ~2s | 60% más rápido |
+
+| Configuración | Compleja | Simple | 67% menos código |
+
+| Mantenimiento | Difícil | Fácil | Mucho más simple |
+
+```bashcd prueba-mcp-a2a-ap2
+
+## 📚 Referencias
+
+# Terminal 1: Merchant Agent
+
+### Protocolos
+
+- [Model Context Protocol](https://modelcontextprotocol.io/)cd ap2-integration## 🚀 Inicio Rápido
+
+- [AP2 Protocol Specification](https://google-agentic-commerce.github.io/AP2/)
+
+- [Google ADK Documentation](https://google.github.io/adk-docs/)python -m src.roles.merchant_agent
+
+
+
+### APIs# 2. Instalar MCP Server
+
+- [PokeAPI Documentation](https://pokeapi.co/docs/v2)
+
+- [Google AI Studio](https://aistudio.google.com/)# Terminal 2: Shopping Agent
+
+
+
+## 🐛 Troubleshootingcd ap2-integration### Prerequisitoscd mcp-server
+
+
+
+### MCP Server no compilapython -m src.roles.shopping_agent
+
+```bash
+
+cd mcp-server```npm install
+
+rm -rf node_modules package-lock.json
+
+npm install
+
+npm run build
+
+```**Flujo de compra**:```bashnpm run build
+
+
+
+### Error: GOOGLE_API_KEY no configurada```
+
+Asegúrate de tener archivos `.env` con la clave en:
+
+- `adk-agent/.env`You: I want to buy a Pikachu# Node.js 20+ para MCP Servercd ..
+
+- `ap2-integration/.env`
+
+🤖: I found Pikachu! It costs $250 USD...
+
+### Puerto 8000/8001 ya en uso
+
+```bashnode --version
+
+# Encontrar proceso
+
+lsof -i :8000You: Add it to my cart
+
+lsof -i :8001
+
+🤖: 🛒 Cart created with Pikachu...# 3. Instalar ADK Agent
+
+# Matar proceso
+
+kill -9 <PID>
+
+```
+
+You: Checkout# Python 3.10+ para AP2 y Shopping Agentcd adk-agent
+
+### Pokemon no encontrado
+
+Solo Pokemon de Gen 1 (números 1-151) están disponibles en el catálogo.🤖: ✅ Payment successful! Transaction ID: txn_...
+
+
+
+### Tool create_pokemon_cart no encontrada```python3 --versionuv pip install google-adk python-dotenv
+
+Reinicia GitHub Copilot: `Ctrl+Shift+P` → "GitHub Copilot: Restart Chat"
+
+
+
+## 🔐 Seguridad
+
+### Escenario 3: GitHub Copilot / Claude Desktopcd ..
+
+**⚠️ IMPORTANTE**: Este es un proyecto de demostración educativa.
+
+
+
+Para producción se requiere:
+
+- ✅ Firmas digitales reales (no simuladas)Usar el servidor MCP desde tu editor o Claude Desktop.# Dependencias de Python
+
+- ✅ Integración con payment processors reales
+
+- ✅ Validación completa de mandates
+
+- ✅ Manejo seguro de credenciales
+
+- ✅ Cumplimiento PCI DSS1. El archivo `.vscode/mcp.json` ya está configuradopip install --user google-generativeai fastapi uvicorn pydantic python-dotenv requests# 4. Instalar AP2 Integration
+
+- ✅ Auditoría de transacciones
+
+2. Reinicia GitHub Copilot: `Ctrl+Shift+P` → "GitHub Copilot: Restart Chat"
+
+## 🚀 Próximos Pasos
+
+3. Pregunta en lenguaje natural:```cd ap2-integration
+
+Posibles extensiones del proyecto:
+
+
+
+1. **Credentials Provider Agent**: Gestión de métodos de pago
+
+2. **IntentMandates**: Compras autónomas del agente```uv pip install fastapi uvicorn pydantic python-dotenv google-adk requests
+
+3. **A2A Protocol completo**: Comunicación entre agentes
+
+4. **Web UI**: Interfaz gráfica para shopping"Busca pokemon de tipo fire por menos de 100 USD"
+
+5. **Database**: PostgreSQL para persistencia
+
+6. **Authentication**: OAuth2 para usuarios"Añade 2 Charizard y 1 Gyarados al carrito"### Configuracióncd ..
+
+7. **Payment Integration**: Stripe/PayPal real
+
+8. **More Pokemon**: Expandar a todas las generaciones"Muéstrame el carrito con el CartMandate completo"
+
+
+
+## 👤 Autor```
+
+
+
+- **CERVIII**
+
+- Repositorio: [mcp-adk-ap2-agent-pokemon](https://github.com/CERVIII/mcp-adk-ap2-agent-pokemon)
 
 ## 💳 Protocolo AP21. **Configurar API Key de Google**:# 5. Configurar API Key
 
+---
 
 
-### CartMandate```bash# Crea archivos .env en adk-agent/ y ap2-integration/
+
+**Versión**: 2.0 - Servidor MCP Unificado con AP2  
+
+**Última actualización**: 20 de Octubre de 2025  ### CartMandate```bash# Crea archivos .env en adk-agent/ y ap2-integration/
+
+**Stack**: TypeScript, Python, MCP, Google ADK, AP2
 
 
 

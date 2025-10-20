@@ -104,6 +104,9 @@ Thumbs.db
 test-results/
 coverage/
 .pytest_cache/
+tests/__pycache__/
+tests/*.pyc
+tests/.pytest_cache/
 
 # Ignore compiled Python
 *.pyc
