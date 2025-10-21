@@ -9,20 +9,29 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
+from sqlalchemy.orm import Session
 import uvicorn
 
 from src.shopping_agent.agent import ShoppingAgent
+from src.database import SessionLocal, PokemonRepository, CartRepository, Pokemon
+from src.common.session import get_or_create_session_id, get_session_id
 
 app = FastAPI(title="Pokemon Shopping Agent", version="1.0.0")
 agent = ShoppingAgent()
 
-# In-memory shopping cart
-shopping_cart: List[Dict[str, Any]] = []
+
+# Dependency to get database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 class SearchRequest(BaseModel):
@@ -1165,38 +1174,51 @@ async def search_pokemon(
 
 
 @app.post("/api/cart/add")
-async def add_to_cart(request: PurchaseRequest):
-    """Add Pokemon to cart"""
+async def add_to_cart(
+    request_data: PurchaseRequest,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    """Add Pokemon to cart (with database persistence)"""
     try:
-        # Get Pokemon info
+        # Get or create session
+        session_id = get_or_create_session_id(request, response)
+        
+        # Get repositories
+        cart_repo = CartRepository(db)
+        pokemon_repo = PokemonRepository(db)
+        
+        # Get or create cart for this session
+        cart = cart_repo.get_or_create_cart(session_id)
+        
+        # Get Pokemon from database
+        pokemon = pokemon_repo.get_by_numero(int(request_data.pokemon_id))
+        if not pokemon:
+            raise HTTPException(status_code=404, detail=f"Pokemon {request_data.pokemon_id} not found")
+        
+        # Check availability
+        if not pokemon.en_venta:
+            raise HTTPException(status_code=400, detail=f"{pokemon.nombre} is not for sale")
+        if pokemon.inventario_disponible < request_data.quantity:
+            raise HTTPException(status_code=400, detail=f"Insufficient stock for {pokemon.nombre}")
+        
+        # Add to cart
+        cart_item = cart_repo.add_item(cart, pokemon, request_data.quantity)
+        
+        # Get Pokemon info for response (with sprite)
         async with agent.get_mcp_client() as mcp:
-            pokemon_info = await mcp.get_pokemon_info(request.pokemon_id)
-            price_info = await mcp.get_pokemon_price(request.pokemon_id)
-        
-        # Check if already in cart
-        existing = None
-        for item in shopping_cart:
-            if item['product_id'] == str(price_info['numero']):
-                existing = item
-                break
-        
-        if existing:
-            existing['quantity'] += request.quantity
-        else:
-            shopping_cart.append({
-                'product_id': str(price_info['numero']),
-                'name': pokemon_info['name'].capitalize(),
-                'price': price_info['precio'],
-                'quantity': request.quantity,
-                'sprite': pokemon_info.get('sprites', {}).get('front_default', '')
-            })
+            pokemon_info = await mcp.get_pokemon_info(request_data.pokemon_id)
         
         return {
             "status": "success",
-            "message": f"Added {pokemon_info['name'].capitalize()} to cart",
-            "cart_items": len(shopping_cart),
-            "cart": shopping_cart
+            "message": f"Added {pokemon.nombre.capitalize()} to cart",
+            "cart_items": len(cart.items),
+            "cart": cart.to_dict(),
+            "sprite": pokemon_info.get('sprites', {}).get('front_default', '')
         }
+    except HTTPException:
+        raise
     except Exception as e:
         import traceback
         print(f"Error in add_to_cart: {e}")
@@ -1205,43 +1227,139 @@ async def add_to_cart(request: PurchaseRequest):
 
 
 @app.get("/api/cart")
-async def get_cart():
-    """Get current shopping cart"""
-    total = sum(item['price'] * item['quantity'] for item in shopping_cart)
-    return {
-        "items": shopping_cart,
-        "total": total,
-        "item_count": len(shopping_cart)
-    }
+async def get_cart(
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    """Get current shopping cart from database"""
+    try:
+        session_id = get_or_create_session_id(request, response)
+        cart_repo = CartRepository(db)
+        
+        cart = cart_repo.get_or_create_cart(session_id)
+        cart_dict = cart.to_dict()
+        
+        # Get sprite URLs for items
+        items_with_sprites = []
+        async with agent.get_mcp_client() as mcp:
+            for item in cart_dict['items']:
+                pokemon_info = await mcp.get_pokemon_info(str(item['pokemon_numero']))
+                items_with_sprites.append({
+                    **item,
+                    'sprite': pokemon_info.get('sprites', {}).get('front_default', ''),
+                    'product_id': str(item['pokemon_numero']),
+                    'name': item['pokemon_name'].capitalize(),
+                    'price': item['unit_price']
+                })
+        
+        return {
+            "items": items_with_sprites,
+            "total": cart_dict['total_amount'],
+            "item_count": cart_dict['total_items'],
+            "session_id": cart.session_id,
+            "expires_at": cart_dict['expires_at']
+        }
+    except Exception as e:
+        import traceback
+        print(f"Error in get_cart: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.delete("/api/cart/clear")
-async def clear_cart():
+async def clear_cart(
+    request: Request,
+    db: Session = Depends(get_db)
+):
     """Clear shopping cart"""
-    global shopping_cart
-    shopping_cart = []
-    return {"status": "success", "message": "Cart cleared"}
+    try:
+        session_id = get_session_id(request)
+        if not session_id:
+            return {"status": "success", "message": "No cart to clear"}
+        
+        cart_repo = CartRepository(db)
+        cart = cart_repo.get_cart_by_session(session_id)
+        
+        if cart:
+            cart_repo.clear_cart(cart.id)
+        
+        return {"status": "success", "message": "Cart cleared"}
+    except Exception as e:
+        import traceback
+        print(f"Error in clear_cart: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.delete("/api/cart/item/{product_id}")
-async def remove_from_cart(product_id: str):
+async def remove_from_cart(
+    product_id: str,
+    request: Request,
+    db: Session = Depends(get_db)
+):
     """Remove item from cart"""
-    global shopping_cart
-    shopping_cart = [item for item in shopping_cart if item['product_id'] != product_id]
-    return {"status": "success", "cart": shopping_cart}
+    try:
+        session_id = get_session_id(request)
+        if not session_id:
+            raise HTTPException(status_code=400, detail="No active cart session")
+        
+        cart_repo = CartRepository(db)
+        cart = cart_repo.get_cart_by_session(session_id)
+        
+        if not cart:
+            raise HTTPException(status_code=404, detail="Cart not found")
+        
+        # Find and remove item
+        item_found = False
+        for item in cart.items:
+            if str(item.pokemon_numero) == product_id:
+                cart_repo.remove_item(item.id)
+                item_found = True
+                break
+        
+        if not item_found:
+            raise HTTPException(status_code=404, detail=f"Item {product_id} not in cart")
+        
+        # Get updated cart
+        updated_cart = cart_repo.get_cart_by_session(session_id)
+        return {
+            "status": "success",
+            "cart": updated_cart.to_dict() if updated_cart else {"items": [], "total_amount": 0}
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"Error in remove_from_cart: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/cart/checkout")
-async def checkout_cart():
+async def checkout_cart(
+    request: Request,
+    db: Session = Depends(get_db)
+):
     """Checkout current cart using AP2 protocol"""
     try:
-        if not shopping_cart:
+        session_id = get_session_id(request)
+        if not session_id:
+            raise HTTPException(status_code=400, detail="No active cart session")
+        
+        cart_repo = CartRepository(db)
+        cart = cart_repo.get_cart_by_session(session_id)
+        
+        if not cart or len(cart.items) == 0:
             raise HTTPException(status_code=400, detail="Cart is empty")
         
-        # Convert cart to items format
+        # Mark cart as checkout
+        cart_repo.mark_cart_as_checkout(cart.id)
+        
+        # Convert cart to items format for AP2
         items = [
-            {"product_id": item['product_id'], "quantity": item['quantity']}
-            for item in shopping_cart
+            {"product_id": str(item.pokemon_numero), "quantity": item.quantity}
+            for item in cart.items
         ]
         
         # Create cart mandate
@@ -1268,10 +1386,13 @@ async def checkout_cart():
         # Process payment
         receipt = await agent.process_payment(cart_mandate, payment_mandate)
         
-        # Clear cart after successful purchase
-        total = sum(item['price'] * item['quantity'] for item in shopping_cart)
-        purchased_items = shopping_cart.copy()
-        shopping_cart.clear()
+        # Get cart info before clearing
+        cart_dict = cart.to_dict()
+        total = cart_dict['total_amount']
+        purchased_items = cart_dict['items']
+        
+        # Mark cart as completed after successful purchase
+        cart_repo.mark_cart_as_completed(cart.id)
         
         return {
             "status": receipt.get("status", "completed"),
@@ -1282,7 +1403,13 @@ async def checkout_cart():
             "payment_mandate": payment_mandate,
             "receipt": receipt
         }
+    except HTTPException:
+        raise
     except Exception as e:
+        import traceback
+        print(f"Error in checkout_cart: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
         import traceback
         print(f"Error in checkout_cart: {e}")
         print(traceback.format_exc())
@@ -1324,6 +1451,34 @@ async def health():
     return {"status": "ok", "message": "Pokemon Shopping Agent is running"}
 
 
+# Background task for cart expiration
+import threading
+import time
+
+def cart_cleanup_worker():
+    """Background worker to expire old carts"""
+    while True:
+        try:
+            time.sleep(3600)  # Run every hour
+            db = SessionLocal()
+            try:
+                cart_repo = CartRepository(db)
+                expired_count = cart_repo.expire_old_carts(hours=24)
+                if expired_count > 0:
+                    print(f"🗑️  Expired {expired_count} old carts")
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"Error in cart cleanup: {e}")
+
+
+def start_cleanup_worker():
+    """Start background cleanup worker"""
+    worker_thread = threading.Thread(target=cart_cleanup_worker, daemon=True)
+    worker_thread.start()
+    print("🧹 Cart cleanup worker started (runs every hour)")
+
+
 def main():
     """Run the web UI server"""
     print("=" * 60)
@@ -1335,6 +1490,9 @@ def main():
     print()
     print("Presiona Ctrl+C para detener el servidor")
     print("=" * 60)
+    
+    # Start background cleanup worker
+    start_cleanup_worker()
     
     uvicorn.run(
         app,

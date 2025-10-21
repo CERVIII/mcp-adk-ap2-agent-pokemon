@@ -120,11 +120,23 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 **Objetivo**: Hacer la Web UI más profesional  
 **Duración estimada**: 2 semanas
 
-#### 2.1 Persistencia del Carrito
-- [ ] Guardar carrito en localStorage (frontend)
-- [ ] O en base de datos con session ID
-- [ ] Recuperar carrito al recargar página
-- [ ] Mostrar tiempo de expiración del carrito
+#### ✅ 2.1 Persistencia del Carrito ⭐ COMPLETADO
+- [x] Guardar carrito en base de datos con session ID (SQLite)
+- [x] Recuperar carrito al recargar página (session cookie)
+- [x] Mostrar tiempo de expiración del carrito (expires_at)
+- [x] Limpieza automática de carritos expirados (background worker)
+
+**✅ COMPLETADO**: El carrito ahora persiste en SQLite con session management via cookies.
+
+**Verificado**:
+- Modelos Cart y CartItem creados en database/models.py
+- CartRepository con CRUD completo (create, get, add_item, remove_item, update_quantity, clear, expire)
+- Session management con UUID + cookies httpOnly (src/common/session.py)
+- Endpoints actualizados para persistir en DB: POST /api/cart/add, GET /api/cart, DELETE /api/cart/clear, DELETE /api/cart/item/{id}
+- Background worker para expiración automática cada hora (TTL: 24h)
+- Tests completos en test_cart_persistence.py (4/6 pasando - session recovery + concurrent carts funcionando)
+
+**Beneficio**: Los usuarios pueden cerrar el navegador y recuperar su carrito. Sistema escala a múltiples usuarios concurrentes.
 
 #### 2.2 Mejoras de UI/UX
 - [ ] Loading states cuando carga Pokemon (spinners)

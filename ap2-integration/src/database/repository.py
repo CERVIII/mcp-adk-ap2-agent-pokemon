@@ -9,7 +9,7 @@ from sqlalchemy import desc, func
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 
-from .models import Pokemon, Transaction, TransactionItem
+from .models import Pokemon, Transaction, TransactionItem, Cart, CartItem
 
 
 class PokemonRepository:
@@ -239,4 +239,204 @@ class TransactionRepository:
             "completed_transactions": completed_transactions,
             "total_revenue": total_revenue,
             "average_transaction": avg_transaction,
+        }
+
+
+class CartRepository:
+    """Repository for shopping cart operations"""
+    
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def create_cart(self, session_id: str, user_id: Optional[str] = None, hours_to_expire: int = 24) -> Cart:
+        """Create a new cart"""
+        from datetime import timedelta
+        
+        cart = Cart(
+            session_id=session_id,
+            user_id=user_id,
+            status="active",
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=hours_to_expire)
+        )
+        self.db.add(cart)
+        self.db.commit()
+        self.db.refresh(cart)
+        return cart
+    
+    def get_cart_by_session(self, session_id: str) -> Optional[Cart]:
+        """Get cart by session ID"""
+        return self.db.query(Cart).filter(
+            Cart.session_id == session_id,
+            Cart.status == "active"
+        ).first()
+    
+    def get_or_create_cart(self, session_id: str, user_id: Optional[str] = None) -> Cart:
+        """Get existing cart or create new one"""
+        cart = self.get_cart_by_session(session_id)
+        
+        if cart:
+            # Check if expired
+            if cart.is_expired():
+                cart.status = "expired"
+                self.db.commit()
+                # Create new cart
+                return self.create_cart(session_id, user_id)
+            return cart
+        
+        return self.create_cart(session_id, user_id)
+    
+    def add_item(
+        self,
+        cart: Cart,
+        pokemon: Pokemon,
+        quantity: int = 1
+    ) -> CartItem:
+        """Add item to cart or update quantity if already exists"""
+        # Check if item already in cart
+        existing_item = self.db.query(CartItem).filter(
+            CartItem.cart_id == cart.id,
+            CartItem.pokemon_numero == pokemon.numero
+        ).first()
+        
+        if existing_item:
+            # Update quantity
+            existing_item.update_quantity(existing_item.quantity + quantity)
+            self.db.commit()
+            self.db.refresh(existing_item)
+            return existing_item
+        
+        # Create new item
+        item = CartItem(
+            cart_id=cart.id,
+            pokemon_numero=pokemon.numero,
+            pokemon_name=pokemon.nombre,
+            quantity=quantity,
+            unit_price=float(pokemon.precio),
+            total_price=float(pokemon.precio) * quantity
+        )
+        self.db.add(item)
+        
+        # Update cart timestamp
+        cart.updated_at = datetime.now(timezone.utc)
+        
+        self.db.commit()
+        self.db.refresh(item)
+        return item
+    
+    def update_item_quantity(self, item_id: int, quantity: int) -> Optional[CartItem]:
+        """Update item quantity"""
+        item = self.db.query(CartItem).filter(CartItem.id == item_id).first()
+        
+        if not item:
+            return None
+        
+        if quantity <= 0:
+            # Remove item if quantity is 0 or negative
+            self.db.delete(item)
+            self.db.commit()
+            return None
+        
+        item.update_quantity(quantity)
+        
+        # Update cart timestamp
+        cart = item.cart
+        cart.updated_at = datetime.now(timezone.utc)
+        
+        self.db.commit()
+        self.db.refresh(item)
+        return item
+    
+    def remove_item(self, item_id: int) -> bool:
+        """Remove item from cart"""
+        item = self.db.query(CartItem).filter(CartItem.id == item_id).first()
+        
+        if not item:
+            return False
+        
+        # Update cart timestamp before deleting
+        cart = item.cart
+        cart.updated_at = datetime.now(timezone.utc)
+        
+        self.db.delete(item)
+        self.db.commit()
+        return True
+    
+    def clear_cart(self, cart_id: int) -> bool:
+        """Remove all items from cart"""
+        cart = self.db.query(Cart).filter(Cart.id == cart_id).first()
+        
+        if not cart:
+            return False
+        
+        # Delete all items
+        self.db.query(CartItem).filter(CartItem.cart_id == cart_id).delete()
+        
+        # Update cart timestamp
+        cart.updated_at = datetime.now(timezone.utc)
+        
+        self.db.commit()
+        return True
+    
+    def mark_cart_as_checkout(self, cart_id: int) -> Optional[Cart]:
+        """Mark cart as in checkout process"""
+        cart = self.db.query(Cart).filter(Cart.id == cart_id).first()
+        
+        if not cart:
+            return None
+        
+        cart.status = "checkout"
+        cart.updated_at = datetime.now(timezone.utc)
+        self.db.commit()
+        self.db.refresh(cart)
+        return cart
+    
+    def mark_cart_as_completed(self, cart_id: int) -> Optional[Cart]:
+        """Mark cart as completed (after successful payment)"""
+        cart = self.db.query(Cart).filter(Cart.id == cart_id).first()
+        
+        if not cart:
+            return None
+        
+        cart.status = "completed"
+        cart.updated_at = datetime.now(timezone.utc)
+        self.db.commit()
+        self.db.refresh(cart)
+        return cart
+    
+    def expire_old_carts(self, hours: int = 24) -> int:
+        """Expire carts older than specified hours"""
+        from datetime import timedelta
+        
+        # Use naive datetime for SQLite compatibility
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+        
+        # Convert to naive datetime for comparison with SQLite
+        now_naive = datetime.now(timezone.utc).replace(tzinfo=None)
+        
+        expired_count = self.db.query(Cart).filter(
+            Cart.status == "active",
+            Cart.expires_at < now_naive
+        ).update({"status": "expired"}, synchronize_session=False)
+        
+        self.db.commit()
+        return expired_count
+    
+    def get_cart_stats(self) -> Dict[str, Any]:
+        """Get cart statistics"""
+        total_carts = self.db.query(func.count(Cart.id)).scalar()
+        active_carts = self.db.query(func.count(Cart.id)).filter(
+            Cart.status == "active"
+        ).scalar()
+        abandoned_carts = self.db.query(func.count(Cart.id)).filter(
+            Cart.status == "abandoned"
+        ).scalar()
+        completed_carts = self.db.query(func.count(Cart.id)).filter(
+            Cart.status == "completed"
+        ).scalar()
+        
+        return {
+            "total_carts": total_carts,
+            "active_carts": active_carts,
+            "abandoned_carts": abandoned_carts,
+            "completed_carts": completed_carts,
         }

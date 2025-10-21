@@ -1,5 +1,8 @@
 # Pokemon MCP + AP2 Agent - AI Coding Instructions
 
+## Language
+When performing a code review, respond in Spanish.
+
 ## Project Overview
 This is a Pokemon marketplace implementing **MCP (Model Context Protocol)** with **AP2 (Agent Payments Protocol)** support. The architecture combines a TypeScript MCP server exposing Pokemon catalog tools with Python-based shopping/merchant agents that coordinate purchases through the AP2 protocol.
 

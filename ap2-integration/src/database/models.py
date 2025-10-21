@@ -237,3 +237,160 @@ class TransactionItem(Base):
             "unit_price": self.unit_price,
             "total_price": self.total_price,
         }
+
+
+class Cart(Base):
+    """
+    Shopping cart for persistent cart storage.
+    
+    Stores active shopping carts with session tracking and expiration.
+    """
+    __tablename__ = "carts"
+    
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # Session tracking
+    session_id = Column(String(100), unique=True, nullable=False, index=True)
+    user_id = Column(String(100), index=True)  # Optional: for authenticated users
+    
+    # Status
+    status = Column(
+        String(20),
+        nullable=False,
+        default="active",
+        index=True
+    )  # active, checkout, abandoned, expired, completed
+    
+    # Timestamps
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+        index=True
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        index=True
+    )  # Auto-expire after 24 hours
+    
+    # Relationships
+    items = relationship(
+        "CartItem",
+        back_populates="cart",
+        cascade="all, delete-orphan"
+    )
+    
+    def __repr__(self):
+        return f"<Cart {self.session_id}: {self.status} ({len(self.items)} items)>"
+    
+    def to_dict(self):
+        """Convert to dictionary"""
+        return {
+            "id": self.id,
+            "session_id": self.session_id,
+            "user_id": self.user_id,
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "expires_at": self.expires_at.isoformat() if self.expires_at else None,
+            "items": [item.to_dict() for item in self.items],
+            "total_items": len(self.items),
+            "total_amount": sum(item.total_price for item in self.items),
+        }
+    
+    def is_expired(self) -> bool:
+        """Check if cart has expired"""
+        # Ensure expires_at has timezone info
+        expires_at = self.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) > expires_at
+    
+    def extend_expiration(self, hours: int = 24):
+        """Extend cart expiration by specified hours"""
+        from datetime import timedelta
+        self.expires_at = datetime.now(timezone.utc) + timedelta(hours=hours)
+        self.updated_at = datetime.now(timezone.utc)
+
+
+class CartItem(Base):
+    """
+    Individual items in a shopping cart.
+    
+    Links carts to specific Pokemon with quantities and price snapshots.
+    """
+    __tablename__ = "cart_items"
+    
+    # Primary key
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    
+    # Foreign keys
+    cart_id = Column(
+        Integer,
+        ForeignKey("carts.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+    pokemon_numero = Column(
+        Integer,
+        ForeignKey("pokemon.numero", ondelete="RESTRICT"),
+        nullable=False,
+        index=True
+    )
+    
+    # Item details
+    quantity = Column(Integer, nullable=False, default=1)
+    unit_price = Column(Float, nullable=False)  # Price snapshot at add time
+    total_price = Column(Float, nullable=False)  # quantity * unit_price
+    
+    # Pokemon name (denormalized for faster queries)
+    pokemon_name = Column(String(50), nullable=False)
+    
+    # Timestamps
+    added_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    
+    # Relationships
+    cart = relationship("Cart", back_populates="items")
+    pokemon = relationship("Pokemon")
+    
+    def __repr__(self):
+        return (
+            f"<CartItem: {self.pokemon_name} "
+            f"x{self.quantity} @ ${self.unit_price}>"
+        )
+    
+    def to_dict(self):
+        """Convert to dictionary"""
+        return {
+            "id": self.id,
+            "pokemon_numero": self.pokemon_numero,
+            "pokemon_name": self.pokemon_name,
+            "quantity": self.quantity,
+            "unit_price": self.unit_price,
+            "total_price": self.total_price,
+            "added_at": self.added_at.isoformat() if self.added_at else None,
+        }
+    
+    def update_quantity(self, new_quantity: int):
+        """Update item quantity and recalculate total"""
+        self.quantity = new_quantity
+        self.total_price = self.quantity * self.unit_price
+        self.updated_at = datetime.now(timezone.utc)
