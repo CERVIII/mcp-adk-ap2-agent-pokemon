@@ -31,7 +31,9 @@ from src.common import (
     get_current_timestamp,
     mock_risk_data,
     print_cart_summary,
-    print_payment_summary
+    print_payment_summary,
+    validate_merchant_signature,
+    JWTValidationError,
 )
 
 
@@ -72,10 +74,23 @@ class ShoppingAgent:
         # Show merchant signature JWT
         merchant_sig = cart_mandate.get("merchant_signature", "")
         if merchant_sig:
-            print(f"\n🔐 Merchant Signature JWT (first 100 chars):")
+            print("\n🔐 Merchant Signature JWT (first 100 chars):")
             print(f"   {merchant_sig[:100]}...")
             print(f"   📊 JWT Structure: {len(merchant_sig.split('.'))} parts")
             print(f"   📏 Total length: {len(merchant_sig)} characters")
+        
+        # Validate merchant signature
+        print("\n🔍 Validating merchant signature...")
+        try:
+            payload = validate_merchant_signature(cart_mandate, verify=True)
+            print("✅ Merchant signature is valid and verified!")
+        except JWTValidationError as e:
+            print(f"❌ Merchant signature validation FAILED: {e}")
+            print("⚠️  Security Warning: CartMandate may be forged or tampered!")
+            raise ValueError(f"Invalid merchant signature: {e}")
+        except Exception as e:
+            print(f"⚠️  Warning: Could not validate signature: {e}")
+            print("   Continuing without validation (development mode)")
         
         print_cart_summary(cart_mandate)
         return cart_mandate

@@ -3,6 +3,13 @@
 from .ap2_types import *
 from .mcp_client import MCPClient, get_mcp_client
 from .utils import *
+from .jwt_validator import (
+    JWTValidator,
+    JWTValidationError,
+    get_jwt_validator,
+    validate_merchant_signature,
+    validate_user_authorization,
+)
 
 __all__ = [
     # Types
@@ -20,6 +27,13 @@ __all__ = [
     # MCP Client
     "MCPClient",
     "get_mcp_client",
+    
+    # JWT Validation
+    "JWTValidator",
+    "JWTValidationError",
+    "get_jwt_validator",
+    "validate_merchant_signature",
+    "validate_user_authorization",
     
     # Utilities
     "generate_unique_id",
