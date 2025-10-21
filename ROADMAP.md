@@ -25,9 +25,9 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 - ~~Merchant signature desde Python (debería venir del MCP server)~~ ✅ RESUELTO en v3.0
 - ~~Claves RSA generadas al inicio (no persistentes)~~ ✅ RESUELTO en v3.1
 - ~~Sin validación de firmas JWT~~ ✅ RESUELTO en v3.2
+- ~~Sin persistencia de transacciones~~ ✅ RESUELTO en v3.3
 - Carrito solo en memoria (se pierde al reiniciar)
 - Sin autenticación de usuarios
-- Sin persistencia de transacciones
 - Payment processor simulado (no real)
 
 ---
@@ -93,14 +93,26 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 
 **Seguridad**: Sistema ahora detecta y rechaza CartMandates o PaymentMandates falsificados.
 
-#### 1.4 Base de Datos para Transacciones
-- [ ] Setup PostgreSQL o SQLite
-- [ ] Schema para transacciones (cart_id, payment_id, status, items, total)
-- [ ] Schema para inventario (actualizar stock)
-- [ ] Migrar pokemon-gen1.json a DB
-- [ ] API endpoints para consultar historial
+#### ✅ 1.4 Base de Datos para Transacciones ⭐ COMPLETADO
+- [x] Setup PostgreSQL o SQLite
+- [x] Schema para transacciones (cart_id, payment_id, status, items, total)
+- [x] Schema para inventario (actualizar stock)
+- [x] Migrar pokemon-gen1.json a DB
+- [x] API endpoints para consultar historial
 
-**Beneficio**: Auditoría completa de todas las transacciones.
+**✅ COMPLETADO**: SQLite database implementada con persistencia completa de transacciones e inventario.
+
+**Verificado**:
+- Base de datos SQLite en pokemon_marketplace.db (64KB con 151 Pokemon)
+- Modelos SQLAlchemy: Pokemon, Transaction, TransactionItem
+- Repository pattern para acceso limpio a datos
+- Script de migración automático (migrate_json_to_db.py)
+- Payment Processor guarda todas las transacciones en DB
+- Stock se actualiza automáticamente al procesar pagos
+- Endpoints nuevos: GET /transactions, GET /stats
+- Test suite completo (test_database.py) con 5/5 tests pasando
+
+**Beneficio**: Auditoría completa de todas las transacciones con persistencia permanente.
 
 ---
 
