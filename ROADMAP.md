@@ -22,10 +22,10 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 
 ### ⚠️ Limitaciones Conocidas
 
-- Merchant signature desde Python (debería venir del MCP server)
-- Claves RSA generadas al inicio (no persistentes)
+- ~~Merchant signature desde Python (debería venir del MCP server)~~ ✅ RESUELTO en v3.0
+- ~~Claves RSA generadas al inicio (no persistentes)~~ ✅ RESUELTO en v3.1
+- ~~Sin validación de firmas JWT~~ ✅ RESUELTO en v3.2
 - Carrito solo en memoria (se pierde al reiniciar)
-- Sin validación de firmas JWT
 - Sin autenticación de usuarios
 - Sin persistencia de transacciones
 - Payment processor simulado (no real)
@@ -57,22 +57,41 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 - Firma criptográfica de 594 caracteres (antes: 30 chars mock)
 - Claims válidos: issuer="PokeMart", expiration=3600s, cart_id incluido
 
-#### 1.2 Persistencia de Claves RSA
-- [ ] Guardar claves privadas en archivos seguros (`merchant_key.pem`, `user_key.pem`)
-- [ ] Cargar claves al inicio (no regenerar cada vez)
-- [ ] Exportar claves públicas para validación
-- [ ] Documentar rotación de claves
+#### ✅ 1.2 Persistencia de Claves RSA ⭐ COMPLETADO
+- [x] Guardar claves privadas en archivos seguros (`merchant_key.pem`, `user_key.pem`)
+- [x] Cargar claves al inicio (no regenerar cada vez)
+- [x] Exportar claves públicas para validación
+- [x] Documentar rotación de claves
 
-**Beneficio**: Las firmas serán consistentes entre reinicios.
+**✅ COMPLETADO**: Las claves RSA ahora persisten en disco (mcp-server/keys/). El servidor carga las claves existentes al iniciar o genera nuevas si no existen.
 
-#### 1.3 Validación de Firmas JWT
-- [ ] Implementar verificación de merchant_signature en Shopping Agent
-- [ ] Validar user_authorization en Payment Processor
-- [ ] Usar claves públicas para verificar
-- [ ] Rechazar mandates con firmas inválidas
-- [ ] Logging de intentos de validación fallidos
+**Verificado**:
+- Claves guardadas en mcp-server/keys/ con permisos seguros (600/644)
+- loadOrGenerateRSAKeys() carga claves existentes o genera nuevas
+- Claves consistentes entre reinicios
+- Test automatizado (test_rsa_persistence.py) valida todo el flujo
+- Documentación completa en keys/README.md
 
-**Seguridad**: Detectar CartMandates o PaymentMandates falsificados.
+**Beneficio**: Las firmas son consistentes entre reinicios, permitiendo validación futura.
+
+#### ✅ 1.3 Validación de Firmas JWT ⭐ COMPLETADO
+- [x] Implementar verificación de merchant_signature en Shopping Agent
+- [x] Validar user_authorization en Payment Processor
+- [x] Usar claves públicas para verificar
+- [x] Rechazar mandates con firmas inválidas
+- [x] Logging de intentos de validación fallidos
+
+**✅ COMPLETADO**: Los agentes ahora validan todas las firmas JWT antes de procesar transacciones.
+
+**Verificado**:
+- JWTValidator class carga claves públicas del MCP server
+- Shopping Agent valida merchant_signature antes de aceptar CartMandate
+- Payment Processor valida user_authorization antes de procesar pago
+- Detección de tampering mediante verificación de hashes
+- JWTs expirados, malformados o inválidos son rechazados
+- Test suite completo (test_jwt_validation.py) con 6 tests pasando
+
+**Seguridad**: Sistema ahora detecta y rechaza CartMandates o PaymentMandates falsificados.
 
 #### 1.4 Base de Datos para Transacciones
 - [ ] Setup PostgreSQL o SQLite
@@ -502,6 +521,6 @@ python tests/test_get_cart.py
 
 ---
 
-**Versión**: 1.0  
-**Última actualización**: 21 de Octubre de 2025  
+**Versión**: 1.1  
+**Última actualización**: 22 de Enero de 2025  
 **Autor**: CERVIII

@@ -20,6 +20,8 @@ from src.common import (
     create_error_response,
     validate_cart_mandate_structure,
     validate_payment_mandate_structure,
+    validate_user_authorization,
+    JWTValidationError,
     AP2_EXTENSION_URI
 )
 
@@ -82,7 +84,27 @@ async def charge_payment(request: Dict[str, Any]):
         validate_cart_mandate_structure(cart_mandate)
         validate_payment_mandate_structure(payment_mandate)
         
-        # In production: verify signatures, check fraud, process real payment
+        # Validate user authorization JWT signature
+        print("\n🔍 Validating user authorization...")
+        try:
+            payload = validate_user_authorization(
+                payment_mandate,
+                cart_mandate,
+                verify=True
+            )
+            print("✅ User authorization is valid and verified!")
+        except JWTValidationError as e:
+            print(f"❌ User authorization validation FAILED: {e}")
+            print("⚠️  Security Warning: PaymentMandate may be forged!")
+            raise HTTPException(
+                status_code=403,
+                detail=f"Invalid user authorization: {e}"
+            )
+        except Exception as e:
+            print(f"⚠️  Warning: Could not validate user authorization: {e}")
+            print("   Continuing without validation (development mode)")
+        
+        # In production: check fraud, process real payment
         
         # Generate transaction
         txn_id = generate_transaction_id()
