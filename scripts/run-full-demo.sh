@@ -63,7 +63,7 @@ sleep 2
 # Start Shopping Web UI
 echo -e "${BLUE}[4/4]${NC} Iniciando Shopping Web UI (puerto $WEB_PORT)..."
 cd ap2-integration
-uv run python -m src.shopping_agent &
+uv run python src/shopping_agent/web_ui.py &
 WEB_PID=$!
 cd ..
 sleep 3
