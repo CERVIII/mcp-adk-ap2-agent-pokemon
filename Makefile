@@ -16,7 +16,8 @@ help: ## Mostrar ayuda
 	@echo "$(GREEN)🎮 Pokemon MCP + AP2 - Comandos Principales$(NC)"
 	@echo ""
 	@echo "$(BLUE)Comandos de Uso Diario:$(NC)"
-	@echo "  $(YELLOW)make run$(NC)        - Compilar y ejecutar TODO (MCP + Agentes AP2 + Web UI)"
+	@echo "  $(YELLOW)make run$(NC)        - Compilar y ejecutar TODO (Agentes AP2 + Web UI)"
+	@echo "  $(YELLOW)make run-web$(NC)    - Solo Web UI (requiere agentes corriendo aparte)"
 	@echo "  $(YELLOW)make stop$(NC)       - Detener todos los agentes"
 	@echo "  $(YELLOW)make status$(NC)     - Ver estado del proyecto"
 	@echo ""
@@ -75,9 +76,9 @@ run-agents: build ## Ejecutar solo agentes AP2 (sin Web UI)
 	@echo "$(YELLOW)🚀 Iniciando agentes AP2...$(NC)"
 	@./scripts/run-ap2-agents.sh
 
-run-web: ## Ejecutar solo Shopping Web UI
-	@echo "$(YELLOW)� Iniciando Web UI...$(NC)"
-	@cd ap2-integration && uv run python -m src.shopping_agent
+run-web: ## Ejecutar solo Shopping Web UI (sin agentes)
+	@echo "$(YELLOW)🛍️  Iniciando Web UI...$(NC)"
+	@./scripts/run-web-only.sh
 
 # ==================== STOP ====================
 
