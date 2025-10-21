@@ -49,7 +49,7 @@ Closes # (issue number)
 
 ### Configuración
 
-<!-- Cualquier nueva configuracion (dependencias, etc) -->
+<!-- Cualquier nueva configuración (dependencias, etc) -->
 
 ## 👥 Reviewers Sugeridos
 
