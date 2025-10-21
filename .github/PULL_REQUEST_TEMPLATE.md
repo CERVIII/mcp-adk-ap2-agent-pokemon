@@ -84,7 +84,6 @@ Closes # (issue number)
 - [ ] Tests unitarios nuevos y existentes pasan localmente
 - [ ] Cambios dependientes han sido mergeados
 - [ ] He actualizado el ROADMAP (si aplica)
-- [ ] He actualizado el CHANGELOG (si aplica)
 
 ## 📊 Impacto en el Sistema
 
@@ -115,6 +114,10 @@ Closes # (issue number)
 <!-- Cualquier información adicional relevante -->
 
 
+
+### Configuración
+
+<!-- Cualquier nueva configuración (dependencias, etc) -->
 
 ## 🔗 Links Relacionados
 
