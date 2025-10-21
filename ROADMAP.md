@@ -24,8 +24,8 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 
 - ~~Merchant signature desde Python (debería venir del MCP server)~~ ✅ RESUELTO en v3.0
 - ~~Claves RSA generadas al inicio (no persistentes)~~ ✅ RESUELTO en v3.1
+- ~~Sin validación de firmas JWT~~ ✅ RESUELTO en v3.2
 - Carrito solo en memoria (se pierde al reiniciar)
-- Sin validación de firmas JWT
 - Sin autenticación de usuarios
 - Sin persistencia de transacciones
 - Payment processor simulado (no real)
@@ -74,14 +74,24 @@ Hoja de ruta para el desarrollo del proyecto Pokemon Marketplace con MCP y AP2.
 
 **Beneficio**: Las firmas son consistentes entre reinicios, permitiendo validación futura.
 
-#### 1.3 Validación de Firmas JWT
-- [ ] Implementar verificación de merchant_signature en Shopping Agent
-- [ ] Validar user_authorization en Payment Processor
-- [ ] Usar claves públicas para verificar
-- [ ] Rechazar mandates con firmas inválidas
-- [ ] Logging de intentos de validación fallidos
+#### ✅ 1.3 Validación de Firmas JWT ⭐ COMPLETADO
+- [x] Implementar verificación de merchant_signature en Shopping Agent
+- [x] Validar user_authorization en Payment Processor
+- [x] Usar claves públicas para verificar
+- [x] Rechazar mandates con firmas inválidas
+- [x] Logging de intentos de validación fallidos
 
-**Seguridad**: Detectar CartMandates o PaymentMandates falsificados.
+**✅ COMPLETADO**: Los agentes ahora validan todas las firmas JWT antes de procesar transacciones.
+
+**Verificado**:
+- JWTValidator class carga claves públicas del MCP server
+- Shopping Agent valida merchant_signature antes de aceptar CartMandate
+- Payment Processor valida user_authorization antes de procesar pago
+- Detección de tampering mediante verificación de hashes
+- JWTs expirados, malformados o inválidos son rechazados
+- Test suite completo (test_jwt_validation.py) con 6 tests pasando
+
+**Seguridad**: Sistema ahora detecta y rechaza CartMandates o PaymentMandates falsificados.
 
 #### 1.4 Base de Datos para Transacciones
 - [ ] Setup PostgreSQL o SQLite
