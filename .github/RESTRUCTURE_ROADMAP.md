@@ -1,73 +1,172 @@
 # 🗺️ Roadmap de Reestructuración - Paso a Paso
 
-## 📍 Estado Actual
-- Branch: `docs/roadmap-issues`
-- Último commit: Labels aplicados a issues
-- Base de datos: `pokemon_marketplace.db` existe
-- MCP Server: Funcional en `mcp-server/src/index.ts`
-- AP2 Agents: Funcionando en `ap2-integration/src/`
+> **⚠️ IMPORTANTE:** Este es un plan DETALLADO y REALISTA basado en el estado actual del proyecto.
+> A diferencia de un plan teórico, este documento considera:
+> - ✅ Código que YA funciona y debe seguir funcionando
+> - ✅ Paths relativos y absolutos reales
+> - ✅ Dependencias entre módulos existentes
+> - ✅ Tests que ya corren (aunque algunos fallen)
+> - ✅ Scripts y Makefile que están operativos
+
+## 📖 Resumen Ejecutivo
+
+**Objetivo:** Reorganizar el código en `src/{mcp,ap2,database}` sin romper funcionalidad existente.
+
+**Motivación:**
+- Separar claramente MCP, AP2 y Database
+- Facilitar testing unitario e integración
+- Mejorar mantenibilidad y escalabilidad
+
+**Enfoque:**
+1. **Preservar funcionalidad** - Todo lo que funciona DEBE seguir funcionando
+2. **Migración incremental** - Hacer cambios en fases pequeñas y verificables
+3. **Git history** - Usar `git mv` para mantener historia
+4. **Tests como red de seguridad** - Verificar después de cada cambio
+
+**Tiempo estimado:** 2-3 días de trabajo enfocado
+
+**Riesgos:**
+- 🔴 **Alto:** Romper imports y que agentes no arranquen
+- 🟡 **Medio:** Path de database incorrecto y pérdida de datos
+- 🟡 **Medio:** Claude Desktop no conecte con MCP
+- 🟢 **Bajo:** Tests fallen temporalmente (pueden marcarse skip)
+
+---
+
+## 📍 Estado Actual del Proyecto
+
+**Branch:** `refactor/project-restructure`
+
+**Sistema Funcional:**
+- ✅ **MCP Server**: `mcp-server/` - Compila con `npm run build`, 694 líneas en `index.ts`
+- ✅ **AP2 Integration**: `ap2-integration/` - Usa `uv`, 4 agentes funcionando
+- ✅ **Database**: `pokemon_marketplace.db` - SQLite con datos reales
+- ✅ **Scripts**: 7 scripts shell en `scripts/` - todos operativos
+- ✅ **Makefile**: 173 líneas - comandos `setup`, `run`, `stop` funcionan
+- ✅ **Tests**: Parcialmente organizados en `tests/integration/` y `tests/unit/`
+
+**Dependencias:**
+- Node.js + npm (MCP server)
+- Python 3.11+ + uv (AP2 agents)
+- SQLite (Database)
+- Google AI Studio API Key (en `.env`)
+
+**Puertos Activos:**
+- 8000: Shopping Web UI (`shopping_agent`)
+- 8001: Merchant Agent
+- 8002: Credentials Provider
+- 8003: Payment Processor
+
+**Archivos Críticos:**
+- `pokemon-gen1.json` - Catálogo de 151 Pokemon (single source of truth)
+- `claude_desktop_config.json` - Config MCP para Claude
+- `ap2-integration/.env` - GOOGLE_API_KEY y otras vars
+- `mcp-server/keys/*.pem` - Claves RSA para JWT
+- `pokemon_marketplace.db` - Base de datos con transacciones
 
 ---
 
 ## 🎯 Fase 1: Preparación y Setup Inicial
 
-### ✅ Step 1.1: Crear branch de reestructuración
-**Objetivo:** Trabajar en una rama separada para no afectar `main` ni `feat/cart-persistence`
+### ✅ Step 1.1: Crear branch de reestructuración (YA HECHO)
+**Objetivo:** Trabajar en una rama separada para no afectar `main`
 
-**Acciones:**
+**Estado:** ✅ **COMPLETADO** - Ya estamos en `refactor/project-restructure`
+
+**Verificar:**
 ```bash
-git checkout main
-git pull origin main
-git checkout -b refactor/project-restructure
+git branch --show-current  # Debe mostrar: refactor/project-restructure
+git status                 # Ver estado actual
 ```
-
-**Verificación:** ✓ Branch creado correctamente
 
 ---
 
-### ✅ Step 1.2: Crear estructura base de carpetas
-**Objetivo:** Crear la nueva estructura de directorios vacía
+### ⬜ Step 1.2: Hacer backup y verificar sistema funcional
+**Objetivo:** Asegurar que podemos restaurar si algo sale mal
+
+**Acciones:**
+```bash
+# 1. Backup de la base de datos
+cp pokemon_marketplace.db pokemon_marketplace.db.backup
+
+# 2. Verificar que el sistema funciona ANTES de tocar nada
+cd mcp-server
+npm run build                    # Debe compilar sin errores
+cd ..
+
+# 3. Verificar que los tests actuales pasan (o al menos corren)
+pytest tests/integration/database -v  # Tests de DB
+pytest tests/integration/mcp -v      # Tests de MCP (pueden fallar, es OK)
+
+# 4. Verificar que los agentes arrancan
+make stop                        # Limpiar puertos
+# NO ejecutar make run todavía - solo verificar que compila
+```
+
+**Verificación:** 
+- ✓ Backup creado
+- ✓ MCP compila sin errores
+- ✓ Tests de database corren (pasen o no)
+- ✓ No hay errores de sintaxis Python
+
+---
+
+### ⬜ Step 1.3: Crear estructura base de carpetas
+**Objetivo:** Crear la nueva estructura de directorios vacía (NO mover archivos todavía)
 
 **Acciones:**
 ```bash
 # Crear directorios principales
-mkdir -p src/{mcp,ap2,database}
-mkdir -p tests/{mcp,ap2,database,e2e}
-mkdir -p config docs/api docs/architecture
+mkdir -p src/mcp/server/{tools,types,build,keys}
+mkdir -p src/mcp/client
 
-# Crear subdirectorios de MCP
-mkdir -p src/mcp/{server,client}
-mkdir -p src/mcp/server/{tools,types}
-
-# Crear subdirectorios de AP2
-mkdir -p src/ap2/{agents,protocol,processor}
 mkdir -p src/ap2/agents/{shopping,merchant,credentials_provider}
+mkdir -p src/ap2/{protocol,processor}
 
-# Crear subdirectorios de Database
 mkdir -p src/database/{migrations,seeds}
 
-# Crear subdirectorios de Tests
-mkdir -p tests/mcp/{unit,integration}
+mkdir -p config
+
+# Crear subdirectorios de Tests (algunos ya existen)
+mkdir -p tests/mcp/{unit,integration,conftest.py}
 mkdir -p tests/ap2/{unit,integration}
 mkdir -p tests/database/{unit,integration}
+# tests/e2e ya existe
 ```
 
-**Archivos a crear:**
-- `src/mcp/README.md`
-- `src/ap2/README.md`
-- `src/database/README.md`
-- `tests/README.md`
-- `tests/conftest.py`
+**Archivos README a crear:**
+```bash
+touch src/mcp/README.md
+touch src/ap2/README.md
+touch src/database/README.md
+```
 
-**Verificación:** ✓ Estructura de carpetas creada
+**Verificación:** 
+```bash
+tree src -L 3      # Ver estructura creada
+tree tests -L 2    # Ver tests organizados
+```
 
 ---
 
-### ✅ Step 1.3: Configurar pytest
-**Objetivo:** Setup de pytest para la nueva estructura
+### ⬜ Step 1.4: Configurar pytest
+**Objetivo:** Crear configuración pytest sin romper tests existentes
 
-**Archivo:** `pytest.ini`
-```ini
+**IMPORTANTE:** `tests/conftest.py` YA EXISTE y tiene configuración crítica:
+```python
+# tests/conftest.py ACTUAL (NO borrar):
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).parent.parent
+ap2_path = project_root / "ap2-integration"
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(ap2_path))
+```
+
+**Acción - Crear `pytest.ini` (NO existe actualmente):**
+```bash
+cat > pytest.ini << 'EOF'
 [pytest]
 testpaths = tests
 python_files = test_*.py
@@ -76,7 +175,6 @@ python_functions = test_*
 addopts = 
     -v
     --tb=short
-    --strict-markers
     --disable-warnings
 markers =
     unit: Unit tests
@@ -85,31 +183,34 @@ markers =
     mcp: MCP related tests
     ap2: AP2 protocol tests
     database: Database tests
+    skip: Skip test temporarily
+EOF
 ```
 
-**Archivo:** `tests/conftest.py`
+**Acción - ACTUALIZAR `tests/conftest.py` (después de mover archivos):**
 ```python
-"""Global pytest configuration and fixtures"""
-import pytest
+"""Global pytest configuration for all tests"""
 import sys
+import os
 from pathlib import Path
 
-# Add src to Python path
-src_path = Path(__file__).parent.parent / "src"
+# Add project paths - ACTUALIZAR cuando movamos archivos
+project_root = Path(__file__).parent.parent
+src_path = project_root / "src"  # NUEVO - después de reestructurar
+
+sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(src_path))
 
-@pytest.fixture(scope="session")
-def test_data_dir():
-    """Returns path to test data directory"""
-    return Path(__file__).parent / "data"
-
-@pytest.fixture(scope="session")
-def config_dir():
-    """Returns path to config directory"""
-    return Path(__file__).parent.parent / "config"
+# Mantener configuración existente
+os.environ["TESTING"] = "1"
+os.environ["ENVIRONMENT"] = "test"
 ```
 
-**Verificación:** ✓ pytest configurado
+**Verificación:**
+```bash
+pytest --collect-only tests/integration/database  # Debe encontrar tests
+pytest --markers                                   # Debe mostrar markers
+```
 
 ---
 
@@ -157,71 +258,57 @@ build/
 
 ## 🎯 Fase 2: Migración del MCP Server
 
-### ✅ Step 2.1: Extraer types de MCP
-**Objetivo:** Separar tipos TypeScript en archivos dedicados
+### ⬜ Step 2.1: Analizar index.ts actual y planear extracción
+**Objetivo:** Entender el código antes de partirlo
 
-**Archivo:** `src/mcp/server/types/pokemon.ts`
-```typescript
-export interface PokemonInfo {
-  id: number;
-  name: string;
-  types: string[];
-  abilities: string[];
-  stats: {
-    hp: number;
-    attack: number;
-    defense: number;
-    specialAttack: number;
-    specialDefense: number;
-    speed: number;
-  };
-  sprites: {
-    front_default: string;
-    front_shiny?: string;
-  };
-}
+**Acciones:**
+```bash
+# 1. Ver estructura actual del index.ts
+wc -l mcp-server/src/index.ts  # 694 líneas
+head -100 mcp-server/src/index.ts  # Ver imports y tipos
 
-export interface PokemonPrice {
-  numero: number;
-  nombre: string;
-  precio: number;
-  enVenta: boolean;
-  inventario: {
-    total: number;
-    disponibles: number;
-    vendidos: number;
-  };
-}
+# 2. Identificar secciones en index.ts:
+# Líneas aproximadas (verificar con editor):
+# - 1-50: Imports y configuración
+# - 51-150: Tipos e interfaces TypeScript
+# - 151-250: Funciones helper (formatCartMandateDisplay, etc.)
+# - 251-600: Implementación de tools (6 tools)
+# - 601-694: Setup del servidor y manejo de requests
 ```
 
-**Archivo:** `src/mcp/server/types/cart.ts`
-```typescript
-export interface CartMandate {
-  contents: {
-    id: string;
-    user_signature_required: boolean;
-    payment_request: PaymentRequest;
-  };
-  merchant_signature: string;
-  timestamp: string;
-  merchantName: string;
-}
+**NO hacer cambios todavía - solo planear**
 
-export interface PaymentRequest {
-  amount: number;
-  currency: string;
-  items: CartItem[];
-  merchant_info: MerchantInfo;
-}
+**Archivo a crear:** `src/mcp/REFACTOR_PLAN.md`
+```markdown
+# Plan de Refactorización de index.ts
+
+## Estructura Actual (694 líneas)
+- Tools: get_pokemon_info, get_pokemon_price, search_pokemon, 
+         list_pokemon_types, create_pokemon_cart, get_pokemon_product
+- Helper functions: formatCartMandateDisplay, createCartMandate
+- Firma JWT con claves RSA en keys/
+
+## Archivos a Crear
+1. types/pokemon.ts - Interfaces de Pokemon
+2. types/cart.ts - Interfaces de Cart/AP2
+3. types/index.ts - Re-exports
+4. tools/pokemon-info.ts - Tool get_pokemon_info
+5. tools/pokemon-price.ts - Tool get_pokemon_price
+6. tools/search-pokemon.ts - Tool search_pokemon
+7. tools/list-types.ts - Tool list_pokemon_types
+8. tools/cart-management.ts - Tools create_cart + get_current_cart
+9. tools/product-info.ts - Tool get_pokemon_product
+10. tools/index.ts - Registry + exports
+11. server/index.ts - Entry point simplificado (~100 líneas)
+
+## Orden de Extracción
+1. Types primero (no tienen dependencias)
+2. Helpers después (usan types)
+3. Tools después (usan types y helpers)
+4. Server al final (usa todo)
 ```
 
-**Archivo:** `src/mcp/server/types/index.ts`
-```typescript
-export * from './pokemon';
-export * from './cart';
-```
-
-**Verificación:** ✓ Types extraídos
+**Verificación:** ✓ Plan documentado y entendido
 
 ---
 
@@ -473,39 +560,51 @@ pytest ../../tests/mcp/integration -v
 
 ## 🎯 Fase 3: Migración del AP2 Protocol
 
-### ✅ Step 3.1: Crear módulo de protocol
-**Objetivo:** Separar tipos y validadores AP2
+### ⬜ Step 3.1: Preparar migración de AP2
+**Objetivo:** Entender la estructura actual antes de mover
 
-**Archivo:** `src/ap2/protocol/types.py`
-```python
-"""AP2 Protocol Types"""
-from dataclasses import dataclass
-from typing import Optional, List, Dict, Any
-from datetime import datetime
-
-@dataclass
-class PaymentRequest:
-    amount: float
-    currency: str
-    items: List[Dict[str, Any]]
-    merchant_info: Dict[str, Any]
-
-@dataclass
-class CartMandate:
-    contents: Dict[str, Any]
-    merchant_signature: str
-    timestamp: str
-    merchantName: str
-
-# ... otros tipos
-```
-
-**Acción:**
+**Estado Actual de `ap2-integration/src/common/`:**
 ```bash
-git mv ap2-integration/src/common/ap2_types.py src/ap2/protocol/types.py
+# Ver archivos y sus dependencias
+ls -la ap2-integration/src/common/
+# __init__.py
+# ap2_types.py      - Tipos AP2 (CartMandate, etc.)
+# jwt_validator.py  - Validación JWT
+# mcp_client.py     - Cliente MCP
+# session.py        - Gestión de sesiones
+# utils.py          - Utilidades
+
+# Ver qué importa cada módulo
+grep "from.*common import" ap2-integration/src/*/**.py
 ```
 
-**Verificación:** ✓ Types movidos
+**Archivos y sus Usos:**
+1. `ap2_types.py` → Usado por: merchant_agent, shopping_agent, tests
+2. `jwt_validator.py` → Usado por: merchant_agent, payment_processor
+3. `mcp_client.py` → Usado por: shopping_agent
+4. `session.py` → Usado por: shopping_agent, credentials_provider
+5. `utils.py` → Usado por: varios
+
+**Plan de Migración:**
+```
+ap2-integration/src/common/ → src/ap2/protocol/
+  ├── ap2_types.py → types.py
+  ├── jwt_validator.py → validators.py
+  ├── session.py → session.py (mantener nombre)
+  └── utils.py → utils.py (mantener nombre)
+
+ap2-integration/src/common/mcp_client.py → src/mcp/client/mcp_client.py
+```
+
+**Archivos a Actualizar (después del mv):**
+- `src/ap2/agents/merchant/server.py` - import de types
+- `src/ap2/agents/shopping/agent.py` - import de types y session
+- `src/ap2/processor/server.py` - import de validators
+- Todos los tests que importen de common
+
+**⚠️ NO mover todavía - solo entender dependencias**
+
+**Verificación:** ✓ Plan documentado
 
 ---
 
@@ -675,19 +774,58 @@ pytest ../../tests/ap2/integration -v
 
 ## 🎯 Fase 4: Migración de Database Layer
 
-### ✅ Step 4.1: Mover módulo de database
-**Acciones:**
+### ⬜ Step 4.1: Analizar dependencias de Database
+**Objetivo:** Entender qué usa la DB antes de mover
+
+**Estado Actual:**
 ```bash
-git mv ap2-integration/src/database/* src/database/
+# Ver estructura de database
+ls -la ap2-integration/src/database/
+# __init__.py
+# cli.py         - CLI commands
+# engine.py      - SQLAlchemy engine + SessionLocal
+# models.py      - Pokemon, Transaction, Cart, CartItem
+# repository.py  - CRUD operations
+# seed.py        - Database seeder
+
+# Ver imports de database en otros módulos
+grep -r "from.*database import" ap2-integration/src/
+grep -r "from.*database import" tests/
 ```
 
-**Archivos movidos:**
-- `__init__.py`
-- `engine.py`
-- `models.py`
-- `repository.py`
+**Quién Usa Database:**
+1. **merchant_agent/server.py**:
+   - `from src.database import get_db, PokemonRepository`
+   - Usado en endpoints de FastAPI
 
-**Verificación:** ✓ Database movida
+2. **Tests**:
+   - `tests/integration/database/*` - Todos los tests de DB
+   - `tests/unit/test_inventory_update.py` - Tests de inventario
+
+3. **seed.py**:
+   - Lee `pokemon-gen1.json` desde root
+   - Path relativo: `../../pokemon-gen1.json`
+
+**Problemas a Resolver:**
+1. **Path de DB**: `engine.py` tiene `sqlite:///../../pokemon_marketplace.db`
+   - Relativo a `ap2-integration/src/database/`
+   - Después de mover a `src/database/` cambiar a `sqlite:///../../../pokemon_marketplace.db`
+   - O mejor: usar path absoluto o variable de entorno
+
+2. **Path de pokemon-gen1.json**: `seed.py` lo lee
+   - Relativo actual: `../../pokemon-gen1.json`
+   - Después de mover: `../../../config/pokemon-gen1.json` (si lo movemos a config/)
+
+3. **Imports en merchant_agent**:
+   - De: `from src.database import ...`
+   - A: `from database import ...` (si src/database está en PYTHONPATH)
+
+**⚠️ CRÍTICO:**
+- NO mover hasta tener plan claro de paths
+- Hacer backup de pokemon_marketplace.db primero
+- Actualizar engine.py para usar DATABASE_URL de .env
+
+**Verificación:** ✓ Dependencias documentadas
 
 ---
 
@@ -1180,73 +1318,279 @@ gh pr create \
 
 ---
 
-## 📊 Checklist Final
+## 📊 Checklist de Reestructuración
 
-### Estructura
-- [ ] `src/mcp/` creado y poblado
-- [ ] `src/ap2/` creado y poblado
-- [ ] `src/database/` creado y poblado
-- [ ] `tests/` reorganizado por módulo
-- [ ] `config/` centralizado
-- [ ] `docs/` organizado
+### Preparación (Fase 1)
+- [x] Branch `refactor/project-restructure` creado
+- [ ] Backup de `pokemon_marketplace.db` creado
+- [ ] Sistema actual verificado funcionando
+- [ ] Estructura de carpetas `src/` creada
+- [ ] `pytest.ini` creado
+- [ ] `.gitignore` actualizado (si necesario)
 
-### MCP
-- [ ] Tools extraídas en archivos separados
-- [ ] Types separados
-- [ ] index.ts refactorizado
-- [ ] Tests unitarios creados
-- [ ] Tests de integración movidos
+### MCP Server (Fase 2)
+- [ ] Análisis de `index.ts` completado
+- [ ] `src/mcp/server/types/` creado con interfaces
+- [ ] Tools extraídas en `src/mcp/server/tools/`
+- [ ] `src/mcp/server/index.ts` simplificado
+- [ ] Claves RSA copiadas a `src/mcp/keys/`
+- [ ] `package.json` y `tsconfig.json` actualizados
+- [ ] `npm run build` funciona en nueva ubicación
+- [ ] Tests de integración MCP movidos a `tests/mcp/integration/`
+- [ ] Tests unitarios nuevos creados en `tests/mcp/unit/`
+- [ ] **CRÍTICO:** Claude Desktop config actualizado con nuevo path
 
-### AP2
-- [ ] Protocol types separados
-- [ ] Agents reorganizados
-- [ ] Processor separado
-- [ ] Tests unitarios creados
-- [ ] Tests de integración creados
+### AP2 Integration (Fase 3)
+- [ ] Análisis de dependencias de `common/` completado
+- [ ] `src/ap2/protocol/` creado (types, validators, utils)
+- [ ] `mcp_client.py` movido a `src/mcp/client/`
+- [ ] Agentes movidos a `src/ap2/agents/`
+- [ ] Payment processor movido a `src/ap2/processor/`
+- [ ] `.env` copiado a `src/ap2/`
+- [ ] `pyproject.toml` y `uv.lock` actualizados
+- [ ] `__main__.py` de cada agente actualizado con imports
+- [ ] Tests JWT movidos a `tests/ap2/unit/`
+- [ ] Tests de integración creados en `tests/ap2/integration/`
+- [ ] **CRÍTICO:** `uv run python -m ...` funciona con nueva estructura
 
-### Database
-- [ ] Módulo movido a src/database
-- [ ] Alembic configurado
-- [ ] Seeders creados
-- [ ] Tests unitarios creados
-- [ ] Tests de integración creados
+### Database (Fase 4)
+- [ ] Análisis de paths y dependencias completado
+- [ ] `src/database/` creado con engine, models, repository
+- [ ] Path de DB actualizado en `engine.py` (usar DATABASE_URL)
+- [ ] Alembic configurado en `src/database/migrations/`
+- [ ] `seed.py` actualizado con nuevo path de `pokemon-gen1.json`
+- [ ] Imports de database actualizados en merchant_agent
+- [ ] Tests de database movidos a `tests/database/`
+- [ ] **CRÍTICO:** DB sigue accesible y tests pasan
 
-### Tests
-- [ ] pytest.ini configurado
-- [ ] conftest.py globales y por módulo
-- [ ] Tests E2E creados
-- [ ] Todos los tests pasan
-- [ ] Cobertura > 80%
+### Tests (Fase 5)
+- [ ] `tests/conftest.py` actualizado con nuevos paths
+- [ ] Tests reorganizados: `tests/{mcp,ap2,database,e2e}/`
+- [ ] Fixtures creadas en cada módulo (`conftest.py` por módulo)
+- [ ] Tests E2E movidos de `tests/unit/` a `tests/e2e/`
+- [ ] Markers pytest configurados (unit, integration, e2e)
+- [ ] Al menos 80% de tests existentes siguen pasando
 
-### Configuración
-- [ ] .gitignore actualizado
-- [ ] Makefile actualizado
-- [ ] Scripts actualizados
-- [ ] package.json actualizado
-- [ ] pyproject.toml actualizado
+### Configuración (Fase 6)
+- [ ] `pokemon-gen1.json` movido a `config/`
+- [ ] `claude_desktop_config.json` movido a `config/`
+- [ ] Scripts en `scripts/` actualizados con nuevos paths
+- [ ] `Makefile` extendido con comandos de tests
+- [ ] `make setup` funciona
+- [ ] `make build` funciona
+- [ ] `make run` funciona
+- [ ] `make test` funciona (nuevo)
 
-### Documentación
-- [ ] READMEs por módulo
-- [ ] Docs movidos a docs/
+### Documentación (Fase 7)
+- [ ] `src/mcp/README.md` creado
+- [ ] `src/ap2/README.md` creado
+- [ ] `src/database/README.md` creado
+- [ ] `tests/README.md` actualizado
+- [ ] `QUICKSTART.md` actualizado con nueva estructura
 - [ ] README principal actualizado
-- [ ] Diagramas de arquitectura
+- [ ] Diagramas de arquitectura creados (opcional)
 
-### Git
-- [ ] Branch creado
-- [ ] Commits organizados
-- [ ] PR creado
-- [ ] CI/CD actualizado (si existe)
+### Limpieza y Verificación (Fase 8)
+- [ ] Carpeta `mcp-server/` eliminada (contenido movido)
+- [ ] Carpeta `ap2-integration/` eliminada (contenido movido)
+- [ ] Todos los tests pasan: `make test`
+- [ ] Sistema completo funciona: `make run`
+- [ ] Claude Desktop puede conectarse al MCP server
+- [ ] Web UI carga en `http://localhost:8000`
+- [ ] No hay imports rotos (verificar con `pytest --collect-only`)
+
+### Git & Deploy (Fase 9)
+- [ ] Commits organizados por fase
+- [ ] PR creado con descripción detallada
+- [ ] README del PR lista breaking changes
+- [ ] Revisión de código completada
+- [ ] Merge a `main`
+- [ ] Tag de versión creado (e.g., `v2.0.0-restructure`)
+
+---
+
+## ✅ Criterios de Éxito
+
+**El proyecto está correctamente reestructurado si:**
+
+1. ✅ `make setup && make build` funciona sin errores
+2. ✅ `make run` inicia todos los agentes correctamente
+3. ✅ Web UI en puerto 8000 carga y puede buscar Pokemon
+4. ✅ Claude Desktop puede usar MCP tools
+5. ✅ Al menos 80% de tests pasan
+6. ✅ Database mantiene datos existentes
+7. ✅ No hay archivos duplicados entre old/new locations
+8. ✅ Documentación refleja nueva estructura
+
+**Red Flags - NO mergear si:**
+
+- ❌ `pokemon_marketplace.db` perdió datos
+- ❌ MCP server no compila
+- ❌ Algún agente no arranca
+- ❌ Scripts en `scripts/` no funcionan
+- ❌ Tests de integración de database fallan
+- ❌ Hay imports circulares
 
 ---
 
 ## 🎯 Siguiente Paso Inmediato
 
-**PASO 1.1**: Crear branch de reestructuración
+**ESTADO:** Ya estamos en el branch `refactor/project-restructure` ✅
+
+**PRÓXIMO PASO:** Step 1.2 - Hacer backup y verificar sistema funcional
 
 ```bash
-git checkout main
-git pull origin main
-git checkout -b refactor/project-restructure
+# Ejecutar estos comandos para preparar:
+
+# 1. Backup de DB
+cp pokemon_marketplace.db pokemon_marketplace.db.backup
+
+# 2. Verificar MCP compila
+cd mcp-server && npm run build && cd ..
+
+# 3. Verificar tests corren
+pytest tests/integration/database/test_database.py -v
+
+# 4. Ver estado git
+git status
 ```
 
-**¿Listo para empezar?** Confirma para proceder con el Step 1.1
+**⚠️ IMPORTANTE ANTES DE CONTINUAR:**
+1. Asegurarse de tener backup de `pokemon_marketplace.db`
+2. Verificar que `make build` funciona
+3. Tener `.env` configurado en `ap2-integration/`
+4. Revisar que no hay cambios sin commitear importantes
+
+**¿Listo para Step 1.2?** Confirma para proceder con el backup y verificación
+
+---
+
+## 🔧 Troubleshooting Común
+
+### Problema: "Module not found" después de mover archivos
+**Causa:** Imports no actualizados o `sys.path` incorrecto
+
+**Solución:**
+```python
+# En conftest.py o __init__.py
+import sys
+from pathlib import Path
+
+# Agregar src/ al path
+src_path = Path(__file__).parent.parent / "src"
+sys.path.insert(0, str(src_path))
+```
+
+### Problema: MCP server no compila después de refactorizar
+**Causa:** Imports TypeScript rotos o paths relativos incorrectos
+
+**Solución:**
+```bash
+# Verificar tsconfig.json tiene paths correctos
+cd src/mcp
+cat tsconfig.json  # Verificar "outDir": "build"
+
+# Limpiar build y recompilar
+rm -rf build
+npm run build
+
+# Si sigue fallando, verificar imports:
+grep -r "from './" src/mcp/server/  # Deben ser relativos correctos
+```
+
+### Problema: Tests no encuentran database
+**Causa:** Path de DB incorrecto en engine.py
+
+**Solución:**
+```python
+# En src/database/engine.py, usar path absoluto:
+from pathlib import Path
+import os
+
+# Opción 1: Variable de entorno
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///pokemon_marketplace.db")
+
+# Opción 2: Path absoluto
+project_root = Path(__file__).parent.parent.parent
+db_path = project_root / "pokemon_marketplace.db"
+DATABASE_URL = f"sqlite:///{db_path}"
+
+engine = create_engine(DATABASE_URL)
+```
+
+### Problema: Agentes AP2 no arrancan
+**Causa:** Entry points `__main__.py` con imports rotos
+
+**Solución:**
+```python
+# En src/ap2/agents/merchant/__main__.py
+import sys
+import os
+from pathlib import Path
+
+# Agregar src/ap2 al path
+ap2_path = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(ap2_path))
+
+# ENTONCES importar
+from agents.merchant.server import app  # Import relativo
+```
+
+### Problema: Claude Desktop no conecta con MCP
+**Causa:** Path en config apunta a ubicación vieja
+
+**Solución:**
+```json
+// En config/claude_desktop_config.json
+{
+  "mcpServers": {
+    "pokemon-marketplace": {
+      "command": "node",
+      "args": [
+        "/ruta/absoluta/a/src/mcp/build/index.js"
+      ]
+    }
+  }
+}
+```
+
+Verificar: `node src/mcp/build/index.js` debe correr sin errores
+
+### Problema: "EADDRINUSE" - puerto ya en uso
+**Causa:** Agentes de ejecución anterior no se cerraron
+
+**Solución:**
+```bash
+# Matar todos los procesos en puertos usados
+make stop
+
+# O manualmente:
+lsof -ti:8000 | xargs kill -9
+lsof -ti:8001 | xargs kill -9
+lsof -ti:8002 | xargs kill -9
+lsof -ti:8003 | xargs kill -9
+```
+
+### Problema: uv no encuentra módulos
+**Causa:** `pyproject.toml` no actualizado o .venv corrupto
+
+**Solución:**
+```bash
+cd src/ap2
+rm -rf .venv uv.lock
+uv sync  # Recrear entorno
+```
+
+### Problema: Tests pasan individualmente pero fallan en suite
+**Causa:** Estado compartido o imports con side effects
+
+**Solución:**
+```python
+# En tests, usar fixtures con scope aislado
+@pytest.fixture(scope="function")  # NO "session"
+def test_db():
+    engine = create_engine("sqlite:///:memory:")
+    # ... setup
+    yield session
+    # ... teardown
+```
