@@ -13,9 +13,15 @@ from sqlalchemy.engine import Engine
 from pathlib import Path
 import os
 
-# Database file path (in project root)
+# Database file path (in project root, not in ap2-integration/src)
+# From ap2-integration/src/database/engine.py -> ../../../pokemon_marketplace.db
 BASE_DIR = Path(__file__).parent.parent.parent.parent
 DATABASE_PATH = BASE_DIR / "pokemon_marketplace.db"
+
+# Ensure we're using the root database file
+if not DATABASE_PATH.parent.name == "mcp-adk-ap2-agent-pokemon":
+    # If calculation failed, use absolute path resolution
+    DATABASE_PATH = Path(__file__).resolve().parent.parent.parent.parent / "pokemon_marketplace.db"
 
 # SQLite connection string
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"

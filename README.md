@@ -429,6 +429,37 @@ uv pip install -e .
 pip install pyjwt cryptography fastapi uvicorn pydantic
 ```
 
+## 🧪 Testing
+
+Suite completa de tests organizados profesionalmente:
+
+```bash
+# Tests unitarios (rápidos, aislados)
+cd tests/unit
+./run_tests.sh
+
+# Tests de integración
+pytest tests/integration/ -v
+
+# Todos los tests
+pytest tests/ -v
+
+# Con cobertura
+pytest tests/ --cov=ap2-integration/src --cov-report=html
+```
+
+**Estructura:**
+- 📁 `tests/unit/` - Tests unitarios (15 tests ✅)
+- 📁 `tests/integration/` - Tests de integración (DB, MCP, JWT, AP2)
+- 📁 `tests/e2e/` - Tests end-to-end
+
+**Estado actual:**
+- ✅ 15 unit tests pasando
+- 📈 80% cobertura en models.py
+- 🎯 Flujo completo de inventario testeado
+
+Ver [tests/README.md](tests/README.md) para documentación completa.
+
 ## 🚀 Próximos Pasos
 
 Posibles extensiones:

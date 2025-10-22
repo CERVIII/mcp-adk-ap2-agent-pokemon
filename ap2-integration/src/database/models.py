@@ -244,6 +244,7 @@ class Cart(Base):
     Shopping cart for persistent cart storage.
     
     Stores active shopping carts with session tracking and expiration.
+    Allows multiple carts per session (for completed/expired carts history).
     """
     __tablename__ = "carts"
     
@@ -251,7 +252,8 @@ class Cart(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     
     # Session tracking
-    session_id = Column(String(100), unique=True, nullable=False, index=True)
+    # NOTE: Removed unique=True to allow multiple carts per session (completed, expired, etc.)
+    session_id = Column(String(100), nullable=False, index=True)
     user_id = Column(String(100), index=True)  # Optional: for authenticated users
     
     # Status

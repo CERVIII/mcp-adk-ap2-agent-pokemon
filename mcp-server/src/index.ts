@@ -152,6 +152,7 @@ interface CartMandateContents {
   merchant_name: string;
   payment_request: PaymentRequest;
   cart_expiry?: string | null;
+  items?: CartItem[];  // Extension: preserve original items for inventory management
 }
 
 interface CartMandate {
@@ -172,20 +173,57 @@ let pokemonPricesCache: PokemonPrice[] | null = null;
 let currentCart: CartMandate | null = null;
 
 // Función para cargar los precios de Pokémon
+/**
+ * Load Pokemon data from database via Python CLI
+ */
 async function loadPokemonPrices(): Promise<PokemonPrice[]> {
   if (pokemonPricesCache) {
     return pokemonPricesCache;
   }
 
   try {
-    // Intentar cargar desde la raíz del proyecto
-    const pokemonDataPath = join(__dirname, "../../pokemon-gen1.json");
-    const data = await readFile(pokemonDataPath, "utf-8");
-    pokemonPricesCache = JSON.parse(data);
+    // Call Python CLI to get Pokemon data from database
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+    
+    const cliPath = join(__dirname, "../../ap2-integration/src/database/cli.py");
+    const pythonPath = join(__dirname, "../../.venv/bin/python");
+    const repoRoot = join(__dirname, "../..");
+    
+    const { stdout, stderr } = await execAsync(
+      `cd "${repoRoot}" && PYTHONPATH=ap2-integration ${pythonPath} ${cliPath} get_all`,
+      { maxBuffer: 10 * 1024 * 1024 } // 10MB buffer for large datasets
+    );
+    
+    if (stderr && !stderr.includes('RuntimeWarning')) {
+      console.error("⚠️  Database CLI stderr:", stderr);
+    }
+    
+    const result = JSON.parse(stdout);
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    
+    pokemonPricesCache = result;
+    console.error(`✅ Loaded ${result.length} Pokemon from database`);
     return pokemonPricesCache!;
   } catch (error) {
-    console.error("Error loading pokemon prices:", error);
-    return [];
+    console.error("❌ Error loading pokemon from database:", error);
+    console.error("⚠️  Falling back to JSON file...");
+    
+    // Fallback to JSON file if database fails
+    try {
+      const pokemonDataPath = join(__dirname, "../../pokemon-gen1.json");
+      const data = await readFile(pokemonDataPath, "utf-8");
+      pokemonPricesCache = JSON.parse(data);
+      const count = pokemonPricesCache?.length || 0;
+      console.error(`✅ Loaded ${count} Pokemon from JSON file (fallback)`);
+      return pokemonPricesCache!;
+    } catch (fallbackError) {
+      console.error("❌ Fallback also failed:", fallbackError);
+      return [];
+    }
   }
 }
 
@@ -340,6 +378,8 @@ async function createCartMandate(items: CartItem[]): Promise<CartMandate> {
         },
       },
       cart_expiry: null,
+      // Extension field: preserve original items for inventory management
+      items: items,
     },
     merchant_signature: generateMerchantSignature(cartId),
     timestamp: timestamp,

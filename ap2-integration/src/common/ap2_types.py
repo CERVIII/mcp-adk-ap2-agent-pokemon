@@ -74,6 +74,15 @@ class PaymentResponse(BaseModel):
 # AP2 Mandate Types
 # ============================================
 
+class CartItem(BaseModel):
+    """
+    Individual item in a shopping cart.
+    Extension field for inventory management.
+    """
+    product_id: str = Field(..., description="Product identifier")
+    quantity: int = Field(default=1, description="Quantity to purchase")
+
+
 class CartContents(BaseModel):
     """
     Contents of a shopping cart.
@@ -93,6 +102,10 @@ class CartContents(BaseModel):
         description="ISO 8601 timestamp when cart expires"
     )
     merchant_name: str = Field(..., description="Name of the merchant")
+    items: Optional[List[CartItem]] = Field(
+        None,
+        description="Extension: Original items for inventory management"
+    )
 
 
 class CartMandate(BaseModel):

@@ -3,6 +3,7 @@
 from .engine import engine, SessionLocal, get_db, init_db, get_db_stats
 from .models import Base, Pokemon, Transaction, TransactionItem, Cart, CartItem
 from .repository import PokemonRepository, TransactionRepository, CartRepository
+from .seed import seed_database, seed_pokemon, clear_pokemon
 
 __all__ = [
     "engine",
@@ -19,4 +20,7 @@ __all__ = [
     "PokemonRepository",
     "TransactionRepository",
     "CartRepository",
+    "seed_database",
+    "seed_pokemon",
+    "clear_pokemon",
 ]

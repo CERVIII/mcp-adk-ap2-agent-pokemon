@@ -44,9 +44,9 @@ class JWTValidator:
     def _get_mcp_keys_directory(self) -> Path:
         """Get path to MCP server keys directory"""
         # From ap2-integration/src/common -> ../../../mcp-server/keys
-        current_dir = Path(__file__).parent
+        current_dir = Path(__file__).parent.resolve()  # Resolve to absolute path
         mcp_keys = current_dir.parent.parent.parent / "mcp-server" / "keys"
-        return mcp_keys
+        return mcp_keys.resolve()  # Ensure absolute path
     
     def _load_keys(self):
         """Load public keys from disk"""

@@ -271,7 +271,7 @@ class CartRepository:
         ).first()
     
     def get_or_create_cart(self, session_id: str, user_id: Optional[str] = None) -> Cart:
-        """Get existing cart or create new one"""
+        """Get existing active cart or create new one"""
         cart = self.get_cart_by_session(session_id)
         
         if cart:
@@ -279,10 +279,12 @@ class CartRepository:
             if cart.is_expired():
                 cart.status = "expired"
                 self.db.commit()
-                # Create new cart
+                # Create new cart after marking old one expired
                 return self.create_cart(session_id, user_id)
             return cart
         
+        # No active cart found, create a new one
+        # (Previous carts with same session_id may exist as completed/expired)
         return self.create_cart(session_id, user_id)
     
     def add_item(
