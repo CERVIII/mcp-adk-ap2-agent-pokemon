@@ -12,9 +12,9 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Load environment
-if [ -f ap2-integration/.env ]; then
-    export $(cat ap2-integration/.env | grep -v '^#' | xargs)
+# Load environment from root .env
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
 else
     echo "⚠️  Warning: .env file not found. Using default ports."
 fi
@@ -45,28 +45,22 @@ trap cleanup SIGINT SIGTERM EXIT
 
 # Start Merchant Agent
 echo -e "${GREEN}[1/3]${NC} Starting Merchant Agent (port $MERCHANT_PORT)..."
-cd ap2-integration
-uv run python -m src.merchant_agent &
+PYTHONPATH=src python -m ap2.agents.merchant &
 MERCHANT_PID=$!
-cd ..
 
 sleep 2
 
 # Start Credentials Provider
 echo -e "${GREEN}[2/3]${NC} Starting Credentials Provider (port $CREDENTIALS_PORT)..."
-cd ap2-integration
-uv run python -m src.credentials_provider &
+PYTHONPATH=src python -m ap2.agents.credentials &
 CREDENTIALS_PID=$!
-cd ..
 
 sleep 2
 
 # Start Payment Processor
 echo -e "${GREEN}[3/3]${NC} Starting Payment Processor (port $PROCESSOR_PORT)..."
-cd ap2-integration
-uv run python -m src.payment_processor &
+PYTHONPATH=src python -m ap2.agents.payment_processor &
 PROCESSOR_PID=$!
-cd ..
 
 sleep 3
 

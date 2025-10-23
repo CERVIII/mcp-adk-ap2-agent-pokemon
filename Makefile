@@ -46,13 +46,13 @@ setup: install build check-env ## Setup completo (primera vez)
 
 install: ## Instalar todas las dependencias
 	@echo "$(BLUE)📦 Instalando dependencias...$(NC)"
-	@cd mcp-server && npm install
-	@cd ap2-integration && uv sync
+	@npm install
+	@echo "$(YELLOW)ℹ️  Python dependencies in src/ap2/pyproject.toml$(NC)"
 	@echo "$(GREEN)✅ Dependencias instaladas$(NC)"
 
 build: ## Compilar MCP Server
 	@echo "$(BLUE)� Compilando MCP Server...$(NC)"
-	@cd mcp-server && npm run build
+	@npm run build
 	@echo "$(GREEN)✅ Compilado$(NC)"
 
 # ==================== RUN ====================
@@ -97,7 +97,7 @@ clean: clean-build clean-cache ## Limpiar builds y caches
 
 clean-build: ## Limpiar archivos compilados
 	@echo "$(YELLOW)🧹 Limpiando builds...$(NC)"
-	@rm -rf mcp-server/build/
+	@rm -rf build/
 	@find . -type f -name "*.tsbuildinfo" -delete 2>/dev/null || true
 
 clean-cache: ## Limpiar caches
@@ -113,8 +113,7 @@ clean-temp: ## Limpiar temporales
 
 reset: clean clean-temp ## Reset completo (limpia TODO menos .env)
 	@echo "$(RED)⚠️  Reset completo...$(NC)"
-	@rm -rf mcp-server/node_modules/
-	@rm -rf ap2-integration/.venv/
+	@rm -rf node_modules/
 	@echo "$(GREEN)✅ Reset completado$(NC)"
 	@echo "$(YELLOW)Siguiente paso:$(NC) make setup"
 
@@ -122,24 +121,25 @@ reset: clean clean-temp ## Reset completo (limpia TODO menos .env)
 
 test: ## Ejecutar tests
 	@echo "$(BLUE)🧪 Ejecutando tests...$(NC)"
-	@cd ap2-integration && uv run python ../tests/test_jwt_signature.py
+	@PYTHONPATH=src python tests/integration/jwt/test_jwt_signature.py
 	@echo "$(GREEN)✅ Tests completados$(NC)"
 
 # ==================== UTILITIES ====================
 
 check-env: ## Verificar configuración de .env
-	@echo "$(BLUE)🔍 Verificando archivos .env...$(NC)"
-	@test -f ap2-integration/.env && echo "$(GREEN)✓ ap2-integration/.env existe$(NC)" || echo "$(RED)✗ ap2-integration/.env NO existe (copia .env.example)$(NC)"
+	@echo "$(BLUE)🔍 Verificando archivo .env...$(NC)"
+	@test -f .env && echo "$(GREEN)✓ .env existe$(NC)" || echo "$(RED)✗ .env NO existe (crea uno con tu GOOGLE_API_KEY)$(NC)"
 
 status: ## Ver estado del proyecto
 	@echo "$(GREEN)📊 Estado del Proyecto$(NC)"
 	@echo ""
 	@echo "$(BLUE)MCP Server:$(NC)"
-	@test -d mcp-server/node_modules && echo "  $(GREEN)✓$(NC) Dependencias instaladas" || echo "  $(RED)✗$(NC) Dependencias NO instaladas"
-	@test -d mcp-server/build && echo "  $(GREEN)✓$(NC) Compilado" || echo "  $(RED)✗$(NC) NO compilado"
+	@test -d node_modules && echo "  $(GREEN)✓$(NC) Dependencias instaladas" || echo "  $(RED)✗$(NC) Dependencias NO instaladas"
+	@test -d build && echo "  $(GREEN)✓$(NC) Compilado" || echo "  $(RED)✗$(NC) NO compilado"
 	@echo ""
-	@echo "$(BLUE)AP2 Integration:$(NC)"
-	@test -f ap2-integration/.env && echo "  $(GREEN)✓$(NC) .env configurado" || echo "  $(RED)✗$(NC) .env NO configurado"
+	@echo "$(BLUE)AP2 Agents (src/ap2/):$(NC)"
+	@test -f .env && echo "  $(GREEN)✓$(NC) .env configurado" || echo "  $(RED)✗$(NC) .env NO configurado"
+	@test -d src/ap2 && echo "  $(GREEN)✓$(NC) Agentes migrados a src/" || echo "  $(RED)✗$(NC) src/ap2/ NO existe"
 	@echo ""
 	@echo "$(BLUE)Puertos:$(NC)"
 	@lsof -i :8000 2>/dev/null && echo "  $(RED)✗$(NC) 8000 EN USO (Shopping Web UI)" || echo "  $(GREEN)✓$(NC) 8000 disponible"

@@ -10,9 +10,9 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Load environment
-if [ -f ap2-integration/.env ]; then
-    export $(cat ap2-integration/.env | grep -v '^#' | xargs)
+# Load environment from root .env
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
 fi
 
 # Ports
@@ -38,34 +38,26 @@ trap cleanup SIGINT SIGTERM EXIT
 
 # Start Merchant Agent
 echo -e "${BLUE}[1/4]${NC} Iniciando Merchant Agent (puerto $MERCHANT_PORT)..."
-cd ap2-integration
-uv run python -m src.merchant_agent &
+PYTHONPATH=src python -m ap2.agents.merchant &
 MERCHANT_PID=$!
-cd ..
 sleep 2
 
 # Start Credentials Provider
 echo -e "${BLUE}[2/4]${NC} Iniciando Credentials Provider (puerto $CREDENTIALS_PORT)..."
-cd ap2-integration
-uv run python -m src.credentials_provider &
+PYTHONPATH=src python -m ap2.agents.credentials &
 CREDENTIALS_PID=$!
-cd ..
 sleep 2
 
 # Start Payment Processor
 echo -e "${BLUE}[3/4]${NC} Iniciando Payment Processor (puerto $PROCESSOR_PORT)..."
-cd ap2-integration
-uv run python -m src.payment_processor &
+PYTHONPATH=src python -m ap2.agents.payment_processor &
 PROCESSOR_PID=$!
-cd ..
 sleep 2
 
 # Start Shopping Web UI
 echo -e "${BLUE}[4/4]${NC} Iniciando Shopping Web UI (puerto $WEB_PORT)..."
-cd ap2-integration
-uv run python src/shopping_agent/web_ui.py &
+PYTHONPATH=src python -m ap2.agents.shopping.web_ui &
 WEB_PID=$!
-cd ..
 sleep 3
 
 echo ""

@@ -58,9 +58,8 @@ secrets/
 *.pem
 !*_public.pem
 !*.pub.pem
-mcp-server/keys/*_private.pem
-mcp-server/keys/merchant_private.pem
-!mcp-server/keys/.gitkeep
+src/keys/*_private.pem
+src/mcp/keys/*_private.pem
 
 # ============================================
 # IDE & Editors
@@ -114,13 +113,12 @@ test-results/
 *.db-journal
 
 # ============================================
-# Documentation (keeping only README.md in each folder)
+# Documentation
 # ============================================
 MIGRATION_GUIDE.md
 PROJECT_SUMMARY.md
 TESTING_GUIDE.md
 UNIFIED_SERVER_READY.md
-mcp-server/README_AP2.md
 
 # ============================================
 # Scripts logs and temp files

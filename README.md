@@ -1,5 +1,9 @@
 # 🎮 Pokemon MCP + AP2 Agent
 
+[![MCP Tests](https://github.com/CERVIII/mcp-adk-ap2-agent-pokemon/actions/workflows/test-mcp.yml/badge.svg)](https://github.com/CERVIII/mcp-adk-ap2-agent-pokemon/actions/workflows/test-mcp.yml)
+[![Build](https://github.com/CERVIII/mcp-adk-ap2-agent-pokemon/actions/workflows/build.yml/badge.svg)](https://github.com/CERVIII/mcp-adk-ap2-agent-pokemon/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/CERVIII/mcp-adk-ap2-agent-pokemon/branch/main/graph/badge.svg)](https://codecov.io/gh/CERVIII/mcp-adk-ap2-agent-pokemon)
+
 Marketplace de Pokemon implementando **Model Context Protocol (MCP)** con **Agent Payments Protocol (AP2)**. Sistema completo con servidor MCP, agentes inteligentes y flujo de pagos con JWT tokens reales.
 
 ## 🎯 Descripción
@@ -128,11 +132,51 @@ mcp-adk-ap2-agent-pokemon/
 │   └── README.md
 │
 └── tests/                             # Tests
+    ├── mcp/unit/server/               # ✨ 250 tests unitarios MCP
+    │   ├── utils/__tests__/          # 50 tests (pokeapi, pokemon-data, rsa-keys)
+    │   ├── ap2/__tests__/            # 73 tests (cart-state, cart-mandate, formatting)
+    │   └── tools/__tests__/          # 127 tests (7 herramientas MCP)
     ├── test_mcp.py                    # Test MCP completo
     ├── test_mcp_simple.py             # Test básico
     ├── test_unified_mcp.sh            # Test bash
     └── README.md
 ```
+
+## 🧪 Testing
+
+### Suite de Tests Unitarios
+
+El proyecto incluye **250 tests unitarios** con **84.23% de cobertura** ejecutados con Jest:
+
+```bash
+# Ejecutar todos los tests
+npm test
+
+# Tests con cobertura
+npm run test:coverage
+
+# Tests en modo watch
+npm run test:watch
+```
+
+**Estadísticas:**
+- ✅ **250 tests** pasando en **~6 segundos**
+- ✅ **14 test suites** organizados por módulo
+- ✅ **84.23%** cobertura de código
+- ✅ **100%** de herramientas MCP testeadas
+
+**Desglose por módulo:**
+- `utils/`: 50 tests - Utilidades (PokeAPI, datos, RSA keys)
+- `ap2/`: 73 tests - Lógica AP2 (CartMandate, formateo, estado)
+- `tools/`: 127 tests - Todas las herramientas MCP
+
+**CI/CD:**
+Los tests se ejecutan automáticamente en GitHub Actions en cada push/PR:
+- ✅ Node.js 20.x y 22.x
+- ✅ Reportes de cobertura
+- ✅ Builds rápidos con caché
+
+
 
 ## 🚀 Instalación Rápida
 
@@ -428,6 +472,37 @@ uv pip install -e .
 # O con pip
 pip install pyjwt cryptography fastapi uvicorn pydantic
 ```
+
+## 🧪 Testing
+
+Suite completa de tests organizados profesionalmente:
+
+```bash
+# Tests unitarios (rápidos, aislados)
+cd tests/unit
+./run_tests.sh
+
+# Tests de integración
+pytest tests/integration/ -v
+
+# Todos los tests
+pytest tests/ -v
+
+# Con cobertura
+pytest tests/ --cov=ap2-integration/src --cov-report=html
+```
+
+**Estructura:**
+- 📁 `tests/unit/` - Tests unitarios (15 tests ✅)
+- 📁 `tests/integration/` - Tests de integración (DB, MCP, JWT, AP2)
+- 📁 `tests/e2e/` - Tests end-to-end
+
+**Estado actual:**
+- ✅ 15 unit tests pasando
+- 📈 80% cobertura en models.py
+- 🎯 Flujo completo de inventario testeado
+
+Ver [tests/README.md](tests/README.md) para documentación completa.
 
 ## 🚀 Próximos Pasos
 

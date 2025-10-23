@@ -7,20 +7,20 @@
     "estado": "disponible",
     "inventario": {
       "total": 14,
-      "disponibles": 10,
-      "vendidos": 4
+      "disponibles": 14,
+      "vendidos": 0
     }
   },
   {
     "numero": 2,
     "nombre": "ivysaur",
     "precio": 149,
-    "enVenta": true,
+    "enVenta": false,
     "estado": "disponible",
     "inventario": {
       "total": 12,
-      "disponibles": 9,
-      "vendidos": 3
+      "disponibles": 0,
+      "vendidos": 12
     }
   },
   {
@@ -28,11 +28,11 @@
     "nombre": "venusaur",
     "precio": 123,
     "enVenta": true,
-    "estado": "disponible",
+    "estado": "no disponible",
     "inventario": {
       "total": 14,
       "disponibles": 8,
-      "vendidos": 6
+      "vendidos": 18
     }
   },
   {
