@@ -2,7 +2,10 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/tests/mcp/unit/server'],
+  roots: [
+    '<rootDir>/tests/mcp/unit/server',
+    '<rootDir>/tests/mcp/integration'
+  ],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   collectCoverageFrom: [
     '<rootDir>/src/mcp/server/**/*.ts',

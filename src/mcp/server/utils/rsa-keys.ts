@@ -22,9 +22,9 @@ export interface RSAKeyPair {
  * Keys are stored in src/keys/ directory for persistence across restarts.
  */
 export async function loadOrGenerateRSAKeys(): Promise<RSAKeyPair> {
-  // Calculate path to src/keys from compiled build/src/mcp/server/utils
-  // Go up 5 levels to project root, then to src/keys
-  const repoRoot = join(__dirname, "../../../../..");
+  // Calculate path to src/keys - use PROJECT_ROOT env var if available (for tests)
+  // Otherwise calculate from compiled build/src/mcp/server/utils (go up 5 levels)
+  const repoRoot = process.env.PROJECT_ROOT || join(__dirname, "../../../../..");
   const keysDir = join(repoRoot, 'src', 'keys');
   const privateKeyPath = join(keysDir, 'merchant_private.pem');
   const publicKeyPath = join(keysDir, 'merchant_public.pem');

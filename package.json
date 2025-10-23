@@ -6,9 +6,11 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
-    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
+    "test": "PROJECT_ROOT=$PWD NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "PROJECT_ROOT=$PWD NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "PROJECT_ROOT=$PWD NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "test:unit": "PROJECT_ROOT=$PWD NODE_OPTIONS='--experimental-vm-modules' jest tests/mcp/unit",
+    "test:integration": "PROJECT_ROOT=$PWD NODE_OPTIONS='--experimental-vm-modules' jest tests/mcp/integration --testTimeout=30000"
   },
   "keywords": [],
   "author": "",
