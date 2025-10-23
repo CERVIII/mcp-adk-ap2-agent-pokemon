@@ -34,11 +34,11 @@ export async function loadPokemonPrices(): Promise<PokemonPrice[]> {
     // Built file is at: build/src/mcp/server/utils/pokemon-data.js
     // Need to go up 5 levels to reach project root
     const repoRoot = process.env.PROJECT_ROOT || join(__dirname, "../../../../..");
-    const cliPath = join(repoRoot, "ap2-integration/src/database/cli.py");
+    const cliPath = join(repoRoot, "src/database/cli.py");
     const pythonPath = join(repoRoot, ".venv/bin/python");
     
     const { stdout, stderr } = await execAsync(
-      `cd "${repoRoot}" && PYTHONPATH=ap2-integration "${pythonPath}" "${cliPath}" get_all`,
+      `cd "${repoRoot}" && PYTHONPATH=src "${pythonPath}" "${cliPath}" get_all`,
       { maxBuffer: 10 * 1024 * 1024 } // 10MB buffer for large datasets
     );
     
