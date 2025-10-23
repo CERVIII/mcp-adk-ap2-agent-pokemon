@@ -19,7 +19,7 @@ export interface RSAKeyPair {
 
 /**
  * Load existing RSA keys from disk or generate new ones if they don't exist.
- * Keys are stored in mcp-server/keys/ directory for persistence across restarts.
+ * Keys are stored in src/mcp/keys/ directory for persistence across restarts.
  */
 export async function loadOrGenerateRSAKeys(): Promise<RSAKeyPair> {
   const keysDir = join(__dirname, '..', '..', '..', 'keys');

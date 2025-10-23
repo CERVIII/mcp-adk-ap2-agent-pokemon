@@ -8,8 +8,8 @@ echo ""
 
 # Limpiar MCP Server
 echo "📦 Limpiando MCP Server..."
-rm -rf mcp-server/build/
-rm -rf mcp-server/node_modules/
+rm -rf build/
+rm -rf node_modules/
 echo "  ✓ MCP Server limpio"
 
 # Limpiar Python caches

@@ -39,7 +39,6 @@ echo ""
 
 # 1. Instalar MCP Server
 echo -e "${YELLOW}📦 1/3 Instalando MCP Server...${NC}"
-cd mcp-server
 npm install
 npm run build
 cd ..

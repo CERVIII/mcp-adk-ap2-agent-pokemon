@@ -46,13 +46,13 @@ setup: install build check-env ## Setup completo (primera vez)
 
 install: ## Instalar todas las dependencias
 	@echo "$(BLUE)📦 Instalando dependencias...$(NC)"
-	@cd mcp-server && npm install
+	@npm install
 	@cd ap2-integration && uv sync
 	@echo "$(GREEN)✅ Dependencias instaladas$(NC)"
 
 build: ## Compilar MCP Server
 	@echo "$(BLUE)� Compilando MCP Server...$(NC)"
-	@cd mcp-server && npm run build
+	@npm run build
 	@echo "$(GREEN)✅ Compilado$(NC)"
 
 # ==================== RUN ====================
@@ -97,7 +97,7 @@ clean: clean-build clean-cache ## Limpiar builds y caches
 
 clean-build: ## Limpiar archivos compilados
 	@echo "$(YELLOW)🧹 Limpiando builds...$(NC)"
-	@rm -rf mcp-server/build/
+	@rm -rf build/
 	@find . -type f -name "*.tsbuildinfo" -delete 2>/dev/null || true
 
 clean-cache: ## Limpiar caches
@@ -113,7 +113,7 @@ clean-temp: ## Limpiar temporales
 
 reset: clean clean-temp ## Reset completo (limpia TODO menos .env)
 	@echo "$(RED)⚠️  Reset completo...$(NC)"
-	@rm -rf mcp-server/node_modules/
+	@rm -rf node_modules/
 	@rm -rf ap2-integration/.venv/
 	@echo "$(GREEN)✅ Reset completado$(NC)"
 	@echo "$(YELLOW)Siguiente paso:$(NC) make setup"
@@ -122,7 +122,7 @@ reset: clean clean-temp ## Reset completo (limpia TODO menos .env)
 
 test: ## Ejecutar tests
 	@echo "$(BLUE)🧪 Ejecutando tests...$(NC)"
-	@cd ap2-integration && uv run python ../tests/test_jwt_signature.py
+	@cd ap2-integration && uv run python ../tests/integration/jwt/test_jwt_signature.py
 	@echo "$(GREEN)✅ Tests completados$(NC)"
 
 # ==================== UTILITIES ====================
@@ -135,8 +135,8 @@ status: ## Ver estado del proyecto
 	@echo "$(GREEN)📊 Estado del Proyecto$(NC)"
 	@echo ""
 	@echo "$(BLUE)MCP Server:$(NC)"
-	@test -d mcp-server/node_modules && echo "  $(GREEN)✓$(NC) Dependencias instaladas" || echo "  $(RED)✗$(NC) Dependencias NO instaladas"
-	@test -d mcp-server/build && echo "  $(GREEN)✓$(NC) Compilado" || echo "  $(RED)✗$(NC) NO compilado"
+	@test -d node_modules && echo "  $(GREEN)✓$(NC) Dependencias instaladas" || echo "  $(RED)✗$(NC) Dependencias NO instaladas"
+	@test -d build && echo "  $(GREEN)✓$(NC) Compilado" || echo "  $(RED)✗$(NC) NO compilado"
 	@echo ""
 	@echo "$(BLUE)AP2 Integration:$(NC)"
 	@test -f ap2-integration/.env && echo "  $(GREEN)✓$(NC) .env configurado" || echo "  $(RED)✗$(NC) .env NO configurado"
