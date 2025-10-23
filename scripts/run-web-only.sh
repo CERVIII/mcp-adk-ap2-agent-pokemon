@@ -23,5 +23,4 @@ echo ""
 echo -e "${BLUE}Iniciando Web UI en puerto $WEB_PORT...${NC}"
 echo ""
 
-cd ap2-integration
-uv run python src/shopping_agent/web_ui.py
+PYTHONPATH=src python -m ap2.agents.shopping.web_ui

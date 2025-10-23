@@ -49,5 +49,4 @@ echo "════════════════════════�
 echo ""
 
 # Start shopping agent
-cd ap2-integration
-uv run python -m src.shopping_agent
+PYTHONPATH=src python -m ap2.agents.shopping

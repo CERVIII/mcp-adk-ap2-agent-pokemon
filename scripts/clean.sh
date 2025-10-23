@@ -20,13 +20,13 @@ echo "  ✓ Caches de Python eliminados"
 
 # Preguntar si eliminar .env
 echo ""
-echo "⚠️  ¿Deseas eliminar archivos .env? (y/n)"
+echo "⚠️  ¿Deseas eliminar archivo .env? (y/n)"
 read -r response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-    rm -f adk-agent/.env ap2-integration/.env
-    echo "  ✓ Archivos .env eliminados"
+    rm -f .env adk-agent/.env
+    echo "  ✓ Archivo .env eliminado"
 else
-    echo "  ↷ Archivos .env conservados"
+    echo "  ↷ Archivo .env conservado"
 fi
 
 echo ""
