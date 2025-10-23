@@ -14,8 +14,16 @@ This is the main agent that coordinates the entire AP2 payment flow:
 import asyncio
 import httpx
 from typing import Dict, Any, List, Optional
+import sys
+from pathlib import Path
 
-from mcp_wrapper.client import get_mcp_client
+# Add src/mcp/client to Python path
+_mcp_client_path = Path(__file__).parent.parent.parent.parent / "mcp" / "client"
+if str(_mcp_client_path) not in sys.path:
+    sys.path.insert(0, str(_mcp_client_path))
+
+from mcp_client import get_mcp_client
+
 from ap2.protocol import (
     PaymentMandate,
     PaymentMandateContents,

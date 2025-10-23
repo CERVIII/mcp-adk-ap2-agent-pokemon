@@ -9,11 +9,16 @@ This agent handles:
 """
 
 import os
+import sys
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from typing import Dict, Any, List, Optional
 
-from mcp_wrapper.client import get_mcp_client
+# Add src/mcp/client to path to import mcp_client
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "mcp" / "client"))
+from mcp_client import get_mcp_client
+
 from ap2.protocol import (
     CartMandate,
     CartContents,
