@@ -1,12 +1,41 @@
 # 🗺️ Roadmap de Reestructuración - Paso a Paso
 
-> **⚠️ IMPORTANTE:** Este es un plan DETALLADO y REALISTA basado en el estado actual del proyecto.
-> A diferencia de un plan teórico, este documento considera:
-> - ✅ Código que YA funciona y debe seguir funcionando
-> - ✅ Paths relativos y absolutos reales
-> - ✅ Dependencias entre módulos existentes
-> - ✅ Tests que ya corren (aunque algunos fallen)
-> - ✅ Scripts y Makefile que están operativos
+> **📅 ÚLTIMA ACTUALIZACIÓN:** 24 de octubre de 2025 - Auditoría completa del estado real
+> 
+> **⚠️ IMPORTANTE:** Este documento refleja el estado REAL del proyecto, no aspiracional.
+> Se actualizó después de una auditoría exhaustiva comparando el código con la documentación.
+
+## 🚨 **ESTADO CRÍTICO - ATENCIÓN REQUERIDA**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  🔴 FASE 3 (AP2 Protocol) BLOQUEADA - SISTEMA NO FUNCIONAL     │
+│                                                                  │
+│  Problema: Archivos movidos pero imports completamente rotos    │
+│  Impacto: 0% ejecutable - Agentes NO arrancan                   │
+│  Acción: Completar Step 3.2 URGENTE (migrar protocol files)    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 🎯 Estado de las Fases:
+
+| Fase | Nombre | Estado | Completitud Real | Funcionalidad |
+|------|--------|--------|------------------|---------------|
+| 1 | Setup Inicial | ✅ | 100% | ✅ Operativo |
+| 2 | MCP Server | ✅ | 100% | ✅ Tests passing |
+| **3** | **AP2 Protocol** | 🔴 **BLOQUEADA** | **15-20%** | ❌ **NO FUNCIONAL** |
+| 4 | Database | ⬜ | 0% | N/A |
+| 5 | Tests E2E | ⬜ | 0% | N/A |
+
+### 🔴 Bloqueadores Activos:
+
+1. **CRÍTICO**: `src/ap2/protocol/` vacío (solo __init__.py, faltan types.py, utils.py, validators.py, session.py)
+2. **CRÍTICO**: Imports rotos en agentes (`from mcp_wrapper.client` - módulo no existe)
+3. **ALTO**: Sin `pyproject.toml` en `src/ap2/` (no se pueden instalar deps)
+4. **ALTO**: Tests vacíos (0 archivos en tests/ap2/unit/ e integration/)
+5. **MEDIO**: Duplicación activa (`ap2-integration/` completo sigue existiendo)
+
+---
 
 ## 📖 Resumen Ejecutivo
 
@@ -26,7 +55,7 @@
 **Tiempo estimado:** 2-3 días de trabajo enfocado
 
 **Riesgos:**
-- 🔴 **Alto:** Romper imports y que agentes no arranquen
+- 🔴 **Alto:** Romper imports y que agentes no arranquen ⚠️ **YA OCURRIÓ EN FASE 3**
 - 🟡 **Medio:** Path de database incorrecto y pérdida de datos
 - 🟡 **Medio:** Claude Desktop no conecte con MCP
 - 🟢 **Bajo:** Tests fallen temporalmente (pueden marcarse skip)
@@ -401,113 +430,258 @@ npm run build  # ✅ Compilación exitosa
 
 ## 🎯 Fase 3: Migración del AP2 Protocol
 
-**ESTADO ACTUAL:** ⚠️ **PARCIALMENTE COMPLETADA**
+**ESTADO ACTUAL:** 🔴 **BLOQUEADA - IMPORTS ROTOS**
+
+**Estado Real:** ~25% funcional (archivos movidos pero NO operativos)
 
 **Completado:**
-- ✅ Agentes movidos a `src/ap2/agents/` (shopping, merchant, credentials, payment_processor)
-- ✅ Estructura de directorios creada
+- ✅ Agentes movidos físicamente a `src/ap2/agents/` (shopping, merchant, credentials, payment_processor)
+- ✅ `src/ap2/protocol/__init__.py` creado con estructura de imports
 
-**Pendiente:**
-- ❌ Step 3.1: Migrar archivos de `ap2-integration/src/common/` a `src/ap2/protocol/`
-- ❌ Step 3.7: Crear `src/ap2/pyproject.toml`
-- ❌ Step 3.8-3.11: Tests de AP2
-- ⚠️ **DUPLICACIÓN:** `ap2-integration/` todavía existe (debería eliminarse después de migración completa)
+**Bloqueadores Críticos:**
+- 🔴 **Step 3.2**: Protocol files NO migrados - `src/ap2/protocol/` solo tiene `__init__.py`
+  - ❌ Falta `types.py` (ap2_types.py sin migrar)
+  - ❌ Falta `utils.py` (sin migrar)
+  - ❌ Falta `validators.py` (jwt_validator.py sin migrar)
+  - ❌ Falta `session.py` (sin migrar)
+  - 🔴 **IMPACTO:** `from ap2.protocol import CartMandate` → `ModuleNotFoundError`
+- 🔴 **Imports rotos en agentes**: `from mcp_wrapper.client` → módulo no existe
+  - Los agentes importan desde `mcp_wrapper` que NO existe
+  - Debería ser `from mcp.client.mcp_client`
+- ❌ **Step 3.7**: `src/ap2/pyproject.toml` NO existe (sin gestión de dependencias)
+- ❌ **Steps 3.8-3.11**: Tests completamente vacíos (0 archivos en unit/ e integration/)
+- 🔴 **DUPLICACIÓN ACTIVA:** `ap2-integration/` completo sigue existiendo (riesgo de desarrollo paralelo)
 
 ---
 
-### ⬜ Step 3.1: Preparar migración de AP2
+### ⚠️ Step 3.1: Preparar migración de AP2
 **Objetivo:** Entender la estructura actual antes de mover
 
 **Estado:** ⚠️ **PARCIALMENTE COMPLETADO** - Estructura analizada pero archivos NO migrados
 
 **Estado Actual:**
-- ✅ Análisis completado
-- ❌ Archivos de `ap2-integration/src/common/` AÚN NO migrados a `src/ap2/protocol/`
+- ✅ Análisis de estructura completado
+- ✅ Directorio `src/ap2/protocol/` creado
+- ✅ `__init__.py` con imports preparado (pero los módulos no existen)
+- ❌ Archivos de `ap2-integration/src/common/` AÚN NO migrados
 
-**Archivos pendientes de migración:**
-```
-ap2-integration/src/common/ap2_types.py      → src/ap2/protocol/types.py (PENDIENTE)
-ap2-integration/src/common/jwt_validator.py  → src/ap2/protocol/validators.py (PENDIENTE)
-ap2-integration/src/common/session.py        → src/ap2/protocol/session.py (PENDIENTE)
-ap2-integration/src/common/utils.py          → src/ap2/protocol/utils.py (PENDIENTE)
-ap2-integration/src/common/mcp_client.py     → src/mcp/client/mcp_client.py (PENDIENTE)
+**Archivos que DEBEN migrarse:**
+```bash
+ORIGEN (ap2-integration/src/common/)     →  DESTINO (src/ap2/protocol/)
+─────────────────────────────────────────────────────────────────────────
+ap2_types.py (305 líneas, 11 KB)        →  types.py ❌ PENDIENTE
+utils.py (10 KB, 10,096 bytes)          →  utils.py ❌ PENDIENTE  
+jwt_validator.py (14 KB, 14,362 bytes)  →  validators.py ❌ PENDIENTE
+session.py (1.7 KB, 1,691 bytes)        →  session.py ❌ PENDIENTE
+mcp_client.py (10 KB, 10,395 bytes)     →  NO MIGRAR (va a src/mcp/client/)
 ```
 
 **Estado de `src/ap2/protocol/`:**
-- ✅ Directorio existe
-- ✅ `__init__.py` existe
-- ❌ Solo tiene `__init__.py`, faltan los 4 archivos principales
+```bash
+src/ap2/protocol/
+└── __init__.py (96 líneas) - INTENTA importar de:
+    ├── from .types import (...)      ❌ types.py NO EXISTE
+    └── from .utils import (...)      ❌ utils.py NO EXISTE
+```
+
+**Prueba de Importación:**
+```bash
+$ python -c "import sys; sys.path.insert(0, 'src'); from ap2.protocol import CartMandate"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File ".../src/ap2/protocol/__init__.py", line 6, in <module>
+    from .types import (
+ModuleNotFoundError: No module named 'ap2.protocol.types'
+```
+
+**Verificación:** ⚠️ Análisis documentado pero migración NO ejecutada
 
 ---
 
-### ❌ Step 3.2: Migrar archivos de protocol
+### 🔴 Step 3.2: Migrar archivos de protocol
 **Objetivo:** Mover archivos de `ap2-integration/src/common/` a `src/ap2/protocol/`
 
-**Estado:** ❌ **PENDIENTE**
+**Estado:** 🔴 **BLOQUEADOR CRÍTICO - NO EJECUTADO**
+
+**Impacto:** Sin estos archivos, NADA funciona:
+- ❌ Agentes no pueden ejecutarse (`ModuleNotFoundError`)
+- ❌ Tests no se pueden crear
+- ❌ Imports en código movido están rotos
+
+**Archivos verificados que existen en origen:**
+```bash
+$ ls -la ap2-integration/src/common/
+-rw-r--r--  ap2_types.py (11,359 bytes)      ✅ EXISTE en origen
+-rw-r--r--  jwt_validator.py (14,362 bytes)  ✅ EXISTE en origen
+-rw-r--r--  session.py (1,691 bytes)         ✅ EXISTE en origen
+-rw-r--r--  utils.py (10,096 bytes)          ✅ EXISTE en origen
+-rw-r--r__  mcp_client.py (10,395 bytes)     ✅ EXISTE (migrar a src/mcp/client/)
+```
 
 **Acciones necesarias:**
 ```bash
-# Migrar archivos de protocol
+# 1. Migrar archivos de protocol (usar git mv para mantener historia)
 git mv ap2-integration/src/common/ap2_types.py src/ap2/protocol/types.py
 git mv ap2-integration/src/common/jwt_validator.py src/ap2/protocol/validators.py
 git mv ap2-integration/src/common/session.py src/ap2/protocol/session.py
 git mv ap2-integration/src/common/utils.py src/ap2/protocol/utils.py
 
-# Actualizar imports en todos los archivos que usen common
+# 2. Actualizar __init__.py si es necesario (puede que ya esté correcto)
+
+# 3. Actualizar imports en TODOS los agentes que usen common/
+# Los siguientes archivos importan desde common:
 # - src/ap2/agents/merchant/server.py
 # - src/ap2/agents/shopping/agent.py
+# - src/ap2/agents/credentials/server.py (probablemente)
 # - src/ap2/agents/payment_processor/server.py
-# - ap2-integration/src/* (archivos que no se han migrado aún)
+# - ap2-integration/src/* (archivos que no se han migrado aún - IGNORAR por ahora)
+
+# Buscar y reemplazar:
+# DE: from common.ap2_types import → A: from ap2.protocol.types import
+# DE: from common.jwt_validator import → A: from ap2.protocol.validators import
+# DE: from common.utils import → A: from ap2.protocol.utils import
+# DE: from common.session import → A: from ap2.protocol.session import
 ```
+
+**Imports rotos adicionales detectados:**
+```python
+# EN: src/ap2/agents/shopping/agent.py (línea 18)
+# EN: src/ap2/agents/merchant/server.py (línea 16)
+from mcp_wrapper.client import get_mcp_client  # ❌ mcp_wrapper NO EXISTE
+
+# DEBE SER:
+from mcp.client.mcp_client import get_mcp_client  # ✅ CORRECTO
+# O crear alias en src/ap2/__init__.py
+```
+
+**Verificación después de migración:**
+```bash
+# Test de importación
+cd /path/to/project
+python -c "import sys; sys.path.insert(0, 'src'); from ap2.protocol import CartMandate, generate_cart_id"
+# Debe ejecutar sin errores
+
+# Verificar estructura
+ls -la src/ap2/protocol/
+# Debe mostrar: __init__.py, types.py, utils.py, validators.py, session.py
+```
+
+**Estado:** ❌ **PENDIENTE - BLOQUEA TODA LA FASE 3**
 
 ---
 
-### ⬜ Step 3.3: Mover Shopping Agent
+### ✅ Step 3.3: Mover Shopping Agent
 **Objetivo:** Mover agente de compras
 
-**Estado:** ✅ **COMPLETADO**
+**Estado:** ⚠️ **ARCHIVOS MOVIDOS - IMPORTS ROTOS**
 
 **Archivos migrados:**
-- ✅ `src/ap2/agents/shopping/agent.py`
+- ✅ `src/ap2/agents/shopping/agent.py` (365 líneas)
 - ✅ `src/ap2/agents/shopping/web_ui.py`
 - ✅ `src/ap2/agents/shopping/__main__.py`
 
+**Imports verificados en agent.py (líneas 1-30):**
+```python
+# Línea 18:
+from mcp_wrapper.client import get_mcp_client  # ❌ ROTO - módulo no existe
+
+# Línea 19-30:
+from ap2.protocol import (  # ⚠️ PREPARADO pero módulos subyacentes faltan
+    PaymentMandate,
+    PaymentMandateContents,
+    PaymentResponse,
+    generate_unique_id,
+    # ... más imports
+)
+```
+
+**Problemas:**
+1. 🔴 `mcp_wrapper` no existe → debe ser `mcp.client.mcp_client`
+2. 🔴 `ap2.protocol` falla porque `types.py` y `utils.py` no existen
+
+**Estado funcional:** ❌ NO EJECUTABLE hasta resolver Step 3.2
+
 ---
 
-### ⬜ Step 3.4: Mover Merchant Agent
+### ✅ Step 3.4: Mover Merchant Agent
 
-**Estado:** ✅ **COMPLETADO**
+**Estado:** ⚠️ **ARCHIVOS MOVIDOS - IMPORTS ROTOS**
 
 **Archivos migrados:**
-- ✅ `src/ap2/agents/merchant/server.py`
+- ✅ `src/ap2/agents/merchant/server.py` (279 líneas)
 - ✅ `src/ap2/agents/merchant/__main__.py`
+
+**Imports verificados en server.py (líneas 1-30):**
+```python
+# Línea 16:
+from mcp_wrapper.client import get_mcp_client  # ❌ ROTO
+
+# Línea 17-30:
+from ap2.protocol import (  # ⚠️ PREPARADO pero módulos faltan
+    CartMandate,
+    CartContents,
+    PaymentRequest,
+    # ... más imports
+)
+```
+
+**Estado funcional:** ❌ NO EJECUTABLE hasta resolver Step 3.2
 
 ---
 
-### ⬜ Step 3.5: Mover Credentials Provider
+### ✅ Step 3.5: Mover Credentials Provider
 
-**Estado:** ✅ **COMPLETADO**
+**Estado:** ⚠️ **ARCHIVOS MOVIDOS - IMPORTS POSIBLEMENTE ROTOS**
 
 **Archivos migrados:**
 - ✅ `src/ap2/agents/credentials/server.py`
 - ✅ `src/ap2/agents/credentials/__main__.py`
 
+**Nota:** Imports no verificados en detalle pero probablemente tienen los mismos problemas.
+
+**Estado funcional:** ❌ NO EJECUTABLE hasta resolver Step 3.2
+
 ---
 
-### ⬜ Step 3.6: Mover Payment Processor
+### ✅ Step 3.6: Mover Payment Processor
 
-**Estado:** ✅ **COMPLETADO**
+**Estado:** ⚠️ **ARCHIVOS MOVIDOS - IMPORTS POSIBLEMENTE ROTOS**
 
 **Archivos migrados:**
 - ✅ `src/ap2/agents/payment_processor/server.py`
 - ✅ `src/ap2/agents/payment_processor/__main__.py`
 
+**Estado funcional:** ❌ NO EJECUTABLE hasta resolver Step 3.2
+
 ---
 
-### ❌ Step 3.7: Crear pyproject.toml para AP2
+### 🔴 Step 3.7: Crear pyproject.toml para AP2
 **Objetivo:** Configurar el módulo AP2 de forma independiente
 
-**Estado:** ❌ **PENDIENTE** - Archivo NO existe
+**Estado:** 🔴 **CRÍTICO - ARCHIVO NO EXISTE**
+
+**Verificación:**
+```bash
+$ ls -la src/ap2/
+total 8
+drwxr-xr-x  6 CERVIII  staff   192 23 oct 13:51 .
+drwxr-xr-x  6 CERVIII  staff   192 23 oct 00:23 ..
+drwxr-xr-x  7 CERVIII  staff   224 23 oct 00:00 agents
+drwxr-xr-x  2 CERVIII  staff    64 23 oct 00:00 processor
+drwxr-xr-x  3 CERVIII  staff    96 22 oct 21:22 protocol
+-rw-r--r--  1 CERVIII  staff  1486 23 oct 13:51 README.md
+
+# ❌ pyproject.toml NO EXISTE
+```
+
+**Impacto:**
+- ❌ No se pueden instalar dependencias con `uv sync`
+- ❌ No hay configuración de módulo independiente
+- ❌ No hay settings de pytest específicos para AP2
+- ❌ Dificulta testing y desarrollo
+
+**Referencia disponible:**
+- ✅ `ap2-integration/pyproject.toml` existe y puede copiarse/adaptarse
 
 **Archivo a crear:** `src/ap2/pyproject.toml`
 
@@ -544,9 +718,30 @@ pythonpath = ["."]
 
 ---
 
-### ❌ Step 3.8: Crear tests unitarios de AP2
+### 🔴 Step 3.8: Crear tests unitarios de AP2
 
-**Estado:** ❌ **PENDIENTE**
+**Estado:** 🔴 **NO INICIADO - CARPETAS VACÍAS**
+
+**Verificación:**
+```bash
+$ ls -la tests/ap2/unit/
+total 0
+drwxr-xr-x  2 CERVIII  staff   64 23 oct 00:00 .
+drwxr-xr-x  4 CERVIII  staff  128 23 oct 00:00 ..
+
+# ❌ COMPLETAMENTE VACÍO - 0 archivos
+```
+
+**Tests que deberían crearse:**
+- ❌ `tests/ap2/unit/test_types.py` - Validar Pydantic models (CartMandate, PaymentMandate, etc.)
+- ❌ `tests/ap2/unit/test_utils.py` - Funciones helper (generate_cart_id, hash_object, etc.)
+- ❌ `tests/ap2/unit/test_validators.py` - JWT validation y structure validation
+- ❌ `tests/ap2/unit/test_session.py` - Session management
+- ❌ `tests/ap2/conftest.py` - Fixtures compartidas
+
+**Dependencia:** Bloqueado por Step 3.2 (sin archivos para testear)
+
+**Estado:** ❌ **PENDIENTE - REQUIERE Step 3.2 COMPLETADO**
 **Archivo:** `tests/ap2/conftest.py`
 ```python
 import pytest
@@ -587,67 +782,179 @@ def sample_cart_mandate():
 
 ---
 
-### ❌ Step 3.9: Mover tests existentes de AP2
+### 🔴 Step 3.9: Mover tests existentes de AP2
 
-**Estado:** ❌ **PENDIENTE**
-**Acciones:**
+**Estado:** 🔴 **NO APLICABLE - NO HAY TESTS EXISTENTES**
+
+**Búsqueda de tests AP2/JWT en proyecto:**
 ```bash
-git mv tests/test_jwt_generation.py tests/ap2/unit/test_jwt_generation.py
-git mv tests/test_jwt_validation.py tests/ap2/unit/test_jwt_validation.py
-git mv tests/test_jwt_signature.py tests/ap2/unit/test_jwt_signature.py
-git mv tests/test_rsa_persistence.py tests/ap2/unit/test_rsa_persistence.py
+$ find tests/ -name "*jwt*.py" -o -name "*ap2*.py"
+# ❌ No se encontraron archivos
+
+# Búsqueda ampliada:
+$ grep -r "test.*jwt" tests/ 2>/dev/null
+$ grep -r "test.*ap2" tests/ 2>/dev/null
+# ❌ No hay tests existentes para mover
 ```
 
-**Verificación:** ❌ Tests NO movidos
+**Conclusión:** No hay tests pre-existentes de AP2 o JWT en el proyecto. Todos los tests deben crearse desde cero en Step 3.8.
+
+**Estado:** ⏭️ **SKIP - NO HAY TESTS QUE MOVER**
 
 ---
 
-### ❌ Step 3.10: Crear tests de integración AP2
+### 🔴 Step 3.10: Crear tests de integración AP2
 
-**Estado:** ❌ **PENDIENTE**
-**Crear:**
-- `tests/ap2/integration/test_shopping_agent.py`
-- `tests/ap2/integration/test_merchant_agent.py`
-- `tests/ap2/integration/test_payment_processor.py`
-- `tests/ap2/integration/test_full_payment_flow.py`
+**Estado:** 🔴 **NO INICIADO - CARPETAS VACÍAS**
 
-**Verificación:** ❌ Tests de integración NO creados
+**Verificación:**
+```bash
+$ ls -la tests/ap2/integration/
+total 0
+drwxr-xr-x  2 CERVIII  staff   64 23 oct 00:00 .
+drwxr-xr-x  4 CERVIII  staff  128 23 oct 00:00 ..
+
+# ❌ COMPLETAMENTE VACÍO - 0 archivos
+```
+
+**Tests de integración necesarios:**
+- ❌ `tests/ap2/integration/test_shopping_agent.py` - Shopping agent endpoints
+- ❌ `tests/ap2/integration/test_merchant_agent.py` - Merchant cart creation & signing
+- ❌ `tests/ap2/integration/test_payment_processor.py` - Payment processing
+- ❌ `tests/ap2/integration/test_credentials_provider.py` - Credentials endpoint
+- ❌ `tests/ap2/integration/test_full_payment_flow.py` - E2E flow entre agentes
+
+**Dependencia:** Bloqueado por Steps 3.2 (protocol) y 3.7 (pyproject)
+
+**Estado:** ❌ **PENDIENTE - REQUIERE Steps 3.2 y 3.7**
 
 ---
 
-### ❌ Step 3.11: Verificar AP2 funciona
+### 🔴 Step 3.11: Verificar AP2 funciona
 
-**Estado:** ❌ **PENDIENTE** - No se puede verificar hasta completar steps anteriores
+**Estado:** 🔴 **IMPOSIBLE EJECUTAR - DEPENDENCIAS NO RESUELTAS**
 
-**Comandos (cuando esté listo):**
+**Verificación intentada:**
+```bash
+$ cd src && python -c "from ap2.protocol import CartMandate"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File ".../src/ap2/protocol/__init__.py", line 6, in <module>
+    from .types import (
+ModuleNotFoundError: No module named 'ap2.protocol.types'
+```
+
+**Comandos que DEBERÍAN funcionar (cuando esté listo):**
 ```bash
 cd src/ap2
-uv sync
-pytest ../../tests/ap2/unit -v
-pytest ../../tests/ap2/integration -v
+uv sync                              # ❌ FALLA - pyproject.toml no existe
+pytest ../../tests/ap2/unit -v      # ❌ FALLA - tests vacíos
+pytest ../../tests/ap2/integration -v # ❌ FALLA - tests vacíos
+
+# Verificar agentes arrancan:
+python -m agents.shopping            # ❌ FALLA - imports rotos
+python -m agents.merchant            # ❌ FALLA - imports rotos
 ```
 
-**Verificación:** ❌ No ejecutado (steps previos pendientes)
+**Bloqueadores:**
+1. 🔴 Step 3.2 sin completar (protocol files)
+2. 🔴 Step 3.7 sin completar (pyproject.toml)
+3. 🔴 Step 3.8-3.10 sin completar (tests)
+4. 🔴 Imports rotos (mcp_wrapper.client)
+
+**Estado:** ❌ **BLOQUEADO - REQUIERE COMPLETAR STEPS 3.2-3.10**
 
 ---
 
-## ⚠️ RESUMEN FASE 3 - Estado Real
+## 🚨 RESUMEN FASE 3 - Estado Real vs Documentado
 
-**Completado (40%):**
-- ✅ Steps 3.3-3.6: Agentes movidos a `src/ap2/agents/`
+**Estado Real del Sistema:** 🔴 **BLOQUEADA - NO FUNCIONAL**
 
-**Pendiente (60%):**
-- ❌ Step 3.1: Análisis hecho pero archivos NO migrados
-- ❌ Step 3.2: Archivos de protocol NO migrados desde `ap2-integration/src/common/`
-- ❌ Step 3.7: `src/ap2/pyproject.toml` NO existe
-- ❌ Steps 3.8-3.11: Tests de AP2 NO creados
+### Comparación Honesta:
 
-**Bloqueadores:**
-- 🔴 `ap2-integration/` todavía existe (duplicación de código)
-- 🔴 Imports de agentes aún apuntan a `ap2-integration/src/common/`
-- 🔴 Sin configuración de dependencias (`pyproject.toml`)
+| Step | Descripción | Estado Archivos | Estado Funcional | Bloqueador |
+|------|-------------|-----------------|------------------|------------|
+| 3.1 | Análisis migración | ⚠️ Parcial | N/A | - |
+| 3.2 | **Migrar protocol** | ❌ **NO HECHO** | ❌ **CRÍTICO** | 🔴 Bloquea todo |
+| 3.3-3.6 | Migrar agentes | ✅ Movidos | ❌ **NO EJECUTABLES** | Requiere 3.2 |
+| 3.7 | pyproject.toml | ❌ **NO EXISTE** | ❌ Sin config | 🔴 Bloquea tests |
+| 3.8 | Tests unitarios | ❌ **VACÍO (0)** | ❌ Sin tests | Requiere 3.2 |
+| 3.9 | Mover tests | ⏭️ Skip | N/A | No hay tests |
+| 3.10 | Tests integración | ❌ **VACÍO (0)** | ❌ Sin tests | Requiere 3.2, 3.7 |
+| 3.11 | Verificar funciona | ❌ **IMPOSIBLE** | ❌ Bloqueado | Requiere todo |
 
-**Siguiente paso:** Completar Step 3.2 (migrar archivos de protocol)
+### Métrica de Completitud Real:
+
+**Previo (documentado):** 40% completado ❌ **INCORRECTO**
+
+**Estado Real Auditado:**
+- **Archivos movidos:** 50% (4 agentes + estructura) ✅
+- **Sistema funcional:** 0% (nada ejecutable) ❌
+- **Tests creados:** 0% (carpetas vacías) ❌
+- **Imports funcionando:** 0% (todos rotos) ❌
+
+**Porcentaje Real de Completitud:** **~15-20%** 
+- Solo estructura de carpetas y archivos físicamente movidos
+- Código NO funcional, NO testeable, NO ejecutable
+
+### Problemas Críticos Identificados:
+
+1. **🔴 BLOQUEADOR #1: Protocol Files NO Migrados**
+   - `src/ap2/protocol/` tiene solo `__init__.py`
+   - Faltan: `types.py`, `utils.py`, `validators.py`, `session.py`
+   - **Impacto:** `ModuleNotFoundError` en todo import de `ap2.protocol`
+
+2. **🔴 BLOQUEADOR #2: Imports Rotos en Agentes**
+   - Todos los agentes importan `from mcp_wrapper.client` ❌
+   - El módulo `mcp_wrapper` NO EXISTE en el proyecto
+   - Debería ser `from mcp.client.mcp_client`
+
+3. **🔴 BLOQUEADOR #3: Sin Configuración de Dependencias**
+   - `src/ap2/pyproject.toml` NO EXISTE
+   - No se puede hacer `uv sync`
+   - No hay gestión de paquetes
+
+4. **🔴 PROBLEMA #4: Duplicación Activa**
+   - `ap2-integration/` COMPLETO sigue existiendo
+   - Riesgo de desarrollo en paralelo
+   - Confusión sobre código "oficial"
+
+5. **🔴 PROBLEMA #5: Zero Tests**
+   - `tests/ap2/unit/` vacío
+   - `tests/ap2/integration/` vacío
+   - No hay red de seguridad para validar cambios
+
+### Comandos que NO Funcionan Actualmente:
+
+```bash
+# ❌ Importar desde protocol
+python -c "from ap2.protocol import CartMandate"
+# ModuleNotFoundError: No module named 'ap2.protocol.types'
+
+# ❌ Arrancar shopping agent
+cd src/ap2 && python -m agents.shopping
+# ModuleNotFoundError: No module named 'mcp_wrapper'
+
+# ❌ Instalar dependencias
+cd src/ap2 && uv sync
+# Error: pyproject.toml not found
+
+# ❌ Ejecutar tests
+pytest tests/ap2/unit -v
+# No tests collected (carpeta vacía)
+```
+
+### Próximos Pasos Obligatorios (en orden):
+
+**PRIORIDAD MÁXIMA - DESBLOQUEAR:**
+1. ✅ **Step 3.2**: Migrar 4 archivos protocol (git mv)
+2. ✅ **Arreglar imports**: `mcp_wrapper` → `mcp.client.mcp_client` en 4 agentes
+3. ✅ **Step 3.7**: Crear `pyproject.toml` (copiar de ap2-integration)
+4. ✅ **Verificar imports**: `python -c "from ap2.protocol import CartMandate"`
+5. ✅ **Step 3.8**: Crear al menos 2 tests unitarios básicos
+6. ✅ **Step 3.11**: Verificar que al menos 1 agente arranca
+
+**Hasta completar Step 3.2**, la Fase 3 está **completamente bloqueada**.
 
 ---
 
