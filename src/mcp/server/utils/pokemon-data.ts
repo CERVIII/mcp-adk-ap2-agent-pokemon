@@ -29,12 +29,15 @@ export async function loadPokemonPrices(): Promise<PokemonPrice[]> {
     const { promisify } = await import('util');
     const execAsync = promisify(exec);
     
-    const cliPath = join(__dirname, "../../../..","ap2-integration/src/database/cli.py");
-    const pythonPath = join(__dirname, "../../../..", ".venv/bin/python");
-    const repoRoot = join(__dirname, "../../../..");
+    // Calculate repo root from the built file location
+    // Built file is at: build/src/mcp/server/utils/pokemon-data.js
+    // Need to go up 5 levels to reach project root
+    const repoRoot = join(__dirname, "../../../../..");
+    const cliPath = join(repoRoot, "ap2-integration/src/database/cli.py");
+    const pythonPath = join(repoRoot, ".venv/bin/python");
     
     const { stdout, stderr } = await execAsync(
-      `cd "${repoRoot}" && PYTHONPATH=ap2-integration ${pythonPath} ${cliPath} get_all`,
+      `cd "${repoRoot}" && PYTHONPATH=ap2-integration "${pythonPath}" "${cliPath}" get_all`,
       { maxBuffer: 10 * 1024 * 1024 } // 10MB buffer for large datasets
     );
     
@@ -56,7 +59,8 @@ export async function loadPokemonPrices(): Promise<PokemonPrice[]> {
     
     // Fallback to JSON file if database fails
     try {
-      const pokemonDataPath = join(__dirname, "../../../..", "pokemon-gen1.json");
+      const repoRoot = join(__dirname, "../../../../..");
+      const pokemonDataPath = join(repoRoot, "pokemon-gen1.json");
       const data = await readFile(pokemonDataPath, "utf-8");
       pokemonPricesCache = JSON.parse(data);
       const count = pokemonPricesCache?.length || 0;

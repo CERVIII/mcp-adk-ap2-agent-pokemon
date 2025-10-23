@@ -19,10 +19,13 @@ export interface RSAKeyPair {
 
 /**
  * Load existing RSA keys from disk or generate new ones if they don't exist.
- * Keys are stored in src/mcp/keys/ directory for persistence across restarts.
+ * Keys are stored in src/keys/ directory for persistence across restarts.
  */
 export async function loadOrGenerateRSAKeys(): Promise<RSAKeyPair> {
-  const keysDir = join(__dirname, '..', '..', '..', 'keys');
+  // Calculate path to src/keys from compiled build/src/mcp/server/utils
+  // Go up 5 levels to project root, then to src/keys
+  const repoRoot = join(__dirname, "../../../../..");
+  const keysDir = join(repoRoot, 'src', 'keys');
   const privateKeyPath = join(keysDir, 'merchant_private.pem');
   const publicKeyPath = join(keysDir, 'merchant_public.pem');
 
