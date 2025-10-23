@@ -247,9 +247,10 @@ def get_mcp_client(server_script_path: Optional[str] = None) -> MCPClientContext
         # If not set, calculate absolute path relative to this file
         if not server_script_path:
             current_file = os.path.abspath(__file__)
-            # From ap2-integration/src/common/mcp_client.py to mcp-server/build/index.js
-            repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
-            server_script_path = os.path.join(repo_root, "mcp-server", "build", "index.js")
+            # From src/mcp/client/mcp_client.py to build/src/mcp/server/index.js
+            # Go up to project root then to build/src/mcp/server/index.js
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+            server_script_path = os.path.join(project_root, "build", "src", "mcp", "server", "index.js")
     
     return MCPClientContextManager(server_script_path)
 
