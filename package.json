@@ -2,10 +2,13 @@
   "name": "02-mcp-pokemon",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +19,12 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^24.8.1"
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.8.1",
+    "jest": "^30.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.8.2"
   }
 }

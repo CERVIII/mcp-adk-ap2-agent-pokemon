@@ -6,8 +6,9 @@
 			"args": [
 				"-y",
 				"tsx",
-				"mcp-server/src/index.ts"
-			]
+				"src/mcp/server/index.ts"
+			],
+			"env": {}
 		}
 	},
 	"inputs": []

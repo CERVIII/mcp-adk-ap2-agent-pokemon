@@ -10,13 +10,13 @@ export const searchPokemonSchema = z.object({
   type: z.string().optional().describe("Pokemon type filter"),
   maxPrice: z.number().optional().describe("Maximum price filter"),
   minPrice: z.number().optional().describe("Minimum price filter"),
-  onlyAvailable: z.boolean().default(false).describe("Only show available Pokemon"),
-  limit: z.number().default(10).describe("Maximum results to return"),
+  onlyAvailable: z.boolean().optional().default(false).describe("Only show available Pokemon"),
+  limit: z.number().optional().default(10).describe("Maximum results to return"),
 });
 
-export type SearchPokemonArgs = z.infer<typeof searchPokemonSchema>;
+export type SearchPokemonArgs = z.input<typeof searchPokemonSchema>;
 
-export async function searchPokemon(args: SearchPokemonArgs) {
+export async function searchPokemon(args: SearchPokemonArgs = {}) {
   const filters = searchPokemonSchema.parse(args);
 
   const prices = await loadPokemonPrices();

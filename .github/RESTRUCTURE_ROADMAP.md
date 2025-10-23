@@ -401,106 +401,115 @@ npm run build  # ✅ Compilación exitosa
 
 ## 🎯 Fase 3: Migración del AP2 Protocol
 
+**ESTADO ACTUAL:** ⚠️ **PARCIALMENTE COMPLETADA**
+
+**Completado:**
+- ✅ Agentes movidos a `src/ap2/agents/` (shopping, merchant, credentials, payment_processor)
+- ✅ Estructura de directorios creada
+
+**Pendiente:**
+- ❌ Step 3.1: Migrar archivos de `ap2-integration/src/common/` a `src/ap2/protocol/`
+- ❌ Step 3.7: Crear `src/ap2/pyproject.toml`
+- ❌ Step 3.8-3.11: Tests de AP2
+- ⚠️ **DUPLICACIÓN:** `ap2-integration/` todavía existe (debería eliminarse después de migración completa)
+
+---
+
 ### ⬜ Step 3.1: Preparar migración de AP2
 **Objetivo:** Entender la estructura actual antes de mover
 
-**Estado Actual de `ap2-integration/src/common/`:**
-```bash
-# Ver archivos y sus dependencias
-ls -la ap2-integration/src/common/
-# __init__.py
-# ap2_types.py      - Tipos AP2 (CartMandate, etc.)
-# jwt_validator.py  - Validación JWT
-# mcp_client.py     - Cliente MCP
-# session.py        - Gestión de sesiones
-# utils.py          - Utilidades
+**Estado:** ⚠️ **PARCIALMENTE COMPLETADO** - Estructura analizada pero archivos NO migrados
 
-# Ver qué importa cada módulo
-grep "from.*common import" ap2-integration/src/*/**.py
+**Estado Actual:**
+- ✅ Análisis completado
+- ❌ Archivos de `ap2-integration/src/common/` AÚN NO migrados a `src/ap2/protocol/`
+
+**Archivos pendientes de migración:**
+```
+ap2-integration/src/common/ap2_types.py      → src/ap2/protocol/types.py (PENDIENTE)
+ap2-integration/src/common/jwt_validator.py  → src/ap2/protocol/validators.py (PENDIENTE)
+ap2-integration/src/common/session.py        → src/ap2/protocol/session.py (PENDIENTE)
+ap2-integration/src/common/utils.py          → src/ap2/protocol/utils.py (PENDIENTE)
+ap2-integration/src/common/mcp_client.py     → src/mcp/client/mcp_client.py (PENDIENTE)
 ```
 
-**Archivos y sus Usos:**
-1. `ap2_types.py` → Usado por: merchant_agent, shopping_agent, tests
-2. `jwt_validator.py` → Usado por: merchant_agent, payment_processor
-3. `mcp_client.py` → Usado por: shopping_agent
-4. `session.py` → Usado por: shopping_agent, credentials_provider
-5. `utils.py` → Usado por: varios
-
-**Plan de Migración:**
-```
-ap2-integration/src/common/ → src/ap2/protocol/
-  ├── ap2_types.py → types.py
-  ├── jwt_validator.py → validators.py
-  ├── session.py → session.py (mantener nombre)
-  └── utils.py → utils.py (mantener nombre)
-
-ap2-integration/src/common/mcp_client.py → src/mcp/client/mcp_client.py
-```
-
-**Archivos a Actualizar (después del mv):**
-- `src/ap2/agents/merchant/server.py` - import de types
-- `src/ap2/agents/shopping/agent.py` - import de types y session
-- `src/ap2/processor/server.py` - import de validators
-- Todos los tests que importen de common
-
-**⚠️ NO mover todavía - solo entender dependencias**
-
-**Verificación:** ✓ Plan documentado
+**Estado de `src/ap2/protocol/`:**
+- ✅ Directorio existe
+- ✅ `__init__.py` existe
+- ❌ Solo tiene `__init__.py`, faltan los 4 archivos principales
 
 ---
 
-### ✅ Step 3.2: Crear utilidades de protocol
-**Archivo:** `src/ap2/protocol/utils.py`
+### ❌ Step 3.2: Migrar archivos de protocol
+**Objetivo:** Mover archivos de `ap2-integration/src/common/` a `src/ap2/protocol/`
 
-**Acción:**
+**Estado:** ❌ **PENDIENTE**
+
+**Acciones necesarias:**
 ```bash
+# Migrar archivos de protocol
+git mv ap2-integration/src/common/ap2_types.py src/ap2/protocol/types.py
+git mv ap2-integration/src/common/jwt_validator.py src/ap2/protocol/validators.py
+git mv ap2-integration/src/common/session.py src/ap2/protocol/session.py
 git mv ap2-integration/src/common/utils.py src/ap2/protocol/utils.py
+
+# Actualizar imports en todos los archivos que usen common
+# - src/ap2/agents/merchant/server.py
+# - src/ap2/agents/shopping/agent.py
+# - src/ap2/agents/payment_processor/server.py
+# - ap2-integration/src/* (archivos que no se han migrado aún)
 ```
 
 ---
 
-### ✅ Step 3.3: Mover Shopping Agent
+### ⬜ Step 3.3: Mover Shopping Agent
 **Objetivo:** Mover agente de compras
 
-**Acciones:**
-```bash
-git mv ap2-integration/src/shopping_agent/* src/ap2/agents/shopping/
-```
+**Estado:** ✅ **COMPLETADO**
 
-**Actualizar imports en:**
-- `src/ap2/agents/shopping/agent.py`
-- `src/ap2/agents/shopping/web_ui.py`
-
-**Verificación:** ✓ Shopping agent movido
+**Archivos migrados:**
+- ✅ `src/ap2/agents/shopping/agent.py`
+- ✅ `src/ap2/agents/shopping/web_ui.py`
+- ✅ `src/ap2/agents/shopping/__main__.py`
 
 ---
 
-### ✅ Step 3.4: Mover Merchant Agent
-**Acciones:**
-```bash
-git mv ap2-integration/src/merchant_agent/* src/ap2/agents/merchant/
-```
+### ⬜ Step 3.4: Mover Merchant Agent
+
+**Estado:** ✅ **COMPLETADO**
+
+**Archivos migrados:**
+- ✅ `src/ap2/agents/merchant/server.py`
+- ✅ `src/ap2/agents/merchant/__main__.py`
 
 ---
 
-### ✅ Step 3.5: Mover Credentials Provider
-**Acciones:**
-```bash
-git mv ap2-integration/src/credentials_provider/* src/ap2/agents/credentials_provider/
-```
+### ⬜ Step 3.5: Mover Credentials Provider
+
+**Estado:** ✅ **COMPLETADO**
+
+**Archivos migrados:**
+- ✅ `src/ap2/agents/credentials/server.py`
+- ✅ `src/ap2/agents/credentials/__main__.py`
 
 ---
 
-### ✅ Step 3.6: Mover Payment Processor
-**Acciones:**
-```bash
-git mv ap2-integration/src/payment_processor/* src/ap2/processor/
-```
+### ⬜ Step 3.6: Mover Payment Processor
+
+**Estado:** ✅ **COMPLETADO**
+
+**Archivos migrados:**
+- ✅ `src/ap2/agents/payment_processor/server.py`
+- ✅ `src/ap2/agents/payment_processor/__main__.py`
 
 ---
 
-### ✅ Step 3.7: Actualizar pyproject.toml
-**Objetivo:** Configurar el módulo AP2
+### ❌ Step 3.7: Crear pyproject.toml para AP2
+**Objetivo:** Configurar el módulo AP2 de forma independiente
+
+**Estado:** ❌ **PENDIENTE** - Archivo NO existe
+
+**Archivo a crear:** `src/ap2/pyproject.toml`
 
 **Archivo:** `src/ap2/pyproject.toml`
 ```toml
@@ -531,11 +540,13 @@ testpaths = ["../../tests/ap2"]
 pythonpath = ["."]
 ```
 
-**Verificación:** ✓ pyproject.toml creado
+**Verificación:** ❌ pyproject.toml NO creado
 
 ---
 
-### ✅ Step 3.8: Crear tests unitarios de AP2
+### ❌ Step 3.8: Crear tests unitarios de AP2
+
+**Estado:** ❌ **PENDIENTE**
 **Archivo:** `tests/ap2/conftest.py`
 ```python
 import pytest
@@ -572,11 +583,13 @@ def sample_cart_mandate():
 - `tests/ap2/unit/test_rsa_keys.py`
 - `tests/ap2/unit/test_protocol_types.py`
 
-**Verificación:** ✓ Tests unitarios creados
+**Verificación:** ❌ Tests unitarios NO creados
 
 ---
 
-### ✅ Step 3.9: Mover tests existentes de AP2
+### ❌ Step 3.9: Mover tests existentes de AP2
+
+**Estado:** ❌ **PENDIENTE**
 **Acciones:**
 ```bash
 git mv tests/test_jwt_generation.py tests/ap2/unit/test_jwt_generation.py
@@ -585,23 +598,28 @@ git mv tests/test_jwt_signature.py tests/ap2/unit/test_jwt_signature.py
 git mv tests/test_rsa_persistence.py tests/ap2/unit/test_rsa_persistence.py
 ```
 
-**Verificación:** ✓ Tests movidos
+**Verificación:** ❌ Tests NO movidos
 
 ---
 
-### ✅ Step 3.10: Crear tests de integración AP2
+### ❌ Step 3.10: Crear tests de integración AP2
+
+**Estado:** ❌ **PENDIENTE**
 **Crear:**
 - `tests/ap2/integration/test_shopping_agent.py`
 - `tests/ap2/integration/test_merchant_agent.py`
 - `tests/ap2/integration/test_payment_processor.py`
 - `tests/ap2/integration/test_full_payment_flow.py`
 
-**Verificación:** ✓ Tests de integración creados
+**Verificación:** ❌ Tests de integración NO creados
 
 ---
 
-### ✅ Step 3.11: Verificar AP2 funciona
-**Comandos:**
+### ❌ Step 3.11: Verificar AP2 funciona
+
+**Estado:** ❌ **PENDIENTE** - No se puede verificar hasta completar steps anteriores
+
+**Comandos (cuando esté listo):**
 ```bash
 cd src/ap2
 uv sync
@@ -609,7 +627,27 @@ pytest ../../tests/ap2/unit -v
 pytest ../../tests/ap2/integration -v
 ```
 
-**Verificación:** ✓ Todos los tests pasan
+**Verificación:** ❌ No ejecutado (steps previos pendientes)
+
+---
+
+## ⚠️ RESUMEN FASE 3 - Estado Real
+
+**Completado (40%):**
+- ✅ Steps 3.3-3.6: Agentes movidos a `src/ap2/agents/`
+
+**Pendiente (60%):**
+- ❌ Step 3.1: Análisis hecho pero archivos NO migrados
+- ❌ Step 3.2: Archivos de protocol NO migrados desde `ap2-integration/src/common/`
+- ❌ Step 3.7: `src/ap2/pyproject.toml` NO existe
+- ❌ Steps 3.8-3.11: Tests de AP2 NO creados
+
+**Bloqueadores:**
+- 🔴 `ap2-integration/` todavía existe (duplicación de código)
+- 🔴 Imports de agentes aún apuntan a `ap2-integration/src/common/`
+- 🔴 Sin configuración de dependencias (`pyproject.toml`)
+
+**Siguiente paso:** Completar Step 3.2 (migrar archivos de protocol)
 
 ---
 

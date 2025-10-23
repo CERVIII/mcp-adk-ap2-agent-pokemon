@@ -8,7 +8,10 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "start": "node build/index.js",
-    "dev": "tsc --watch & node --watch build/index.js"
+    "dev": "tsc --watch & node --watch build/index.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
   },
   "keywords": [
     "mcp",
@@ -24,7 +27,11 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.8.1",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
     "typescript": "^5.7.2"
   }
 }
